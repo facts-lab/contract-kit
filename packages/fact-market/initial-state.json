@@ -1,0 +1,18 @@
+{
+  "ticker": "",
+  "name": "",
+  "balances": {},
+  "registry": {
+    "tx": "",
+    "qty": 0,
+    "from": ""
+  },
+  "fulfilled": {},
+  "settings": [
+    ["communityLogo", "_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo"],
+    ["isTradeable", true]
+  ],
+  "claims": [],
+  "claimable": [],
+  "divisibility": 12
+}

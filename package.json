@@ -1,0 +1,16 @@
+{
+  "name": "contract-kit",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "generate:js-contract": "node ./scripts/generate.mjs js-contract ${NAME}"
+  },
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "nx": "15.9.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

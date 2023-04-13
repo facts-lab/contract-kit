@@ -1,0 +1,12 @@
+{
+  "ticker": "FACTMKT",
+  "name": "fact-market",
+  "balances": {},
+  "settings": [
+    ["communityLogo", "_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo"],
+    ["isTradeable", true]
+  ],
+  "claims": [],
+  "claimable": [],
+  "divisibility": 100000000
+}
