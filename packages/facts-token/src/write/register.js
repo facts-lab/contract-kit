@@ -1,5 +1,4 @@
 import { Left, Right, of, fromNullable } from "../hyper-either.js";
-import { ca } from "../util.js";
 
 /**
  * @description
@@ -7,10 +6,12 @@ import { ca } from "../util.js";
  * @author @jshaw-ar
  * @export
  * @param {*} state
- * @param {input: { to, amount }} action
+ * @param {input: { tx, amount, wallet, factMarket }} action
  * @return {state}
  */
-export function transfer(state, action) {
+export function register(state, action) {
+  // 1. Check if user is vouched
+  // 2. add transactions to registered
   return of({ state, action })
     .chain(fromNullable)
     .chain(ca(!Number.isInteger(action.input.amount), "Invalid quantity"))
@@ -27,13 +28,10 @@ export function transfer(state, action) {
     )
     .map(zeroBalance)
     .fold(
-      (p) => {
-        console.log("left", p);
+      (message) => {
+        throw new ContractError(message);
       },
-      (p) => {
-        console.log("right", p);
-        return p;
-      }
+      ({ state, action }) => {}
     );
 }
 

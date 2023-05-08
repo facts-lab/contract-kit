@@ -28,6 +28,7 @@
     "warp-contracts-plugin-deploy": "1.0.1"
   },
   "dependencies": {
+    "@facts-kit/contract-kit": "0.4.2",
     "either-js": "1.0.0"
   }
 }

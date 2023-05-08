@@ -1,5 +1,4 @@
 import { Left, Right, of, fromNullable } from "../hyper-either.js";
-import { ca } from "../util.js";
 
 /**
  * @description

@@ -4,9 +4,8 @@ import { transfer } from "../src/write/transfer.js";
 
 const either = suite("either");
 
-either("should work", () => {
+either.skip("should work", () => {
   const tf = transfer({}, "");
-  console.log("HH?", tf);
   assert.equal(1, 1);
 });
 

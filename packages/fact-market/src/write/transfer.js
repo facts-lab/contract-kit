@@ -3,8 +3,17 @@ import {
   validateBalanceGreaterThanQuantity,
   validateQuantityGreaterThanZero,
   validateTarget,
-} from '../util';
+} from "../util";
 
+/**
+ *
+ *
+ * @author mogulx_operates
+ * @export
+ * @param {*} state
+ * @param {*} action
+ * @return {*}
+ */
 export async function transfer(state, action) {
   const { balances } = state;
   const { caller, input } = action;
