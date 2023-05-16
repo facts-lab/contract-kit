@@ -123,30 +123,6 @@ export const getBalances = ({ state, action }) =>
     ? state.balances
     : state.oppositionBalances;
 
-/**
- * Use Warp internalWrite to call the `claim` function of contract
- * @param tokenId Contract ID of token to interact with
- * @param transferTx Transaction of claim
- * @param qty Quantity of tokens being claimed
- */
-export const claimBalance = async (tokenId, transferTx, qty) => {
-  const result = await SmartWeave.contracts.write(tokenId, {
-    function: 'claim',
-    txID: transferTx,
-    qty,
-  });
-  // throw new ContractError(
-  //   JSON.stringify({
-  //     jshawResult: result,
-  //     jshawInput: { tokenId, transferTx, qty },
-  //   })
-  // );
-  // Check that it succeeded
-  if (result.type !== 'ok') {
-    throw new ContractError(`Unable to make claim with txID: ${transferTx}`);
-  }
-};
-
 export const allowBalance = async (tokenId, target, qty) => {
   const result = await SmartWeave.contracts.write(tokenId, {
     function: 'allow',
@@ -162,4 +138,9 @@ export const allowBalance = async (tokenId, target, qty) => {
   return result;
 };
 
+/**
+ * @description Registers buy interactions with the registry.
+ *
+ * @author @jshaw-ar
+ */
 function register() {}

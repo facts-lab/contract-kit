@@ -1,4 +1,4 @@
-import { buyPipe } from './write/buy';
+import { buy } from './write/buy';
 
 export async function handle(state, action) {
   const env = {
@@ -11,7 +11,7 @@ export async function handle(state, action) {
 
   switch (action.input.function) {
     case 'buy':
-      return buyPipe(env)(state, action);
+      return buy(env)(state, action);
     default:
       throw new ContractError(
         `No function supplied or function not recognized`
