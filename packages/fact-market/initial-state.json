@@ -7,6 +7,7 @@
   "balances": {},
   "oppositionBalances": {},
   "pair": "",
+  "registry": "",
   "settings": [
     ["communityLogo", "dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80"],
     ["isTradeable", true]
