@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import { buyPipe } from '../src/write/buy.js';
+import { buy } from '../src/write/buy.js';
 import { setupSmartWeaveEnv } from './setup.js';
 
 const test = suite('buy');
@@ -10,7 +10,7 @@ test('should throw (positionType must be support or oppose.) if undefined', () =
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  buyPipe(env)(
+  buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -35,7 +35,7 @@ test('should throw (positionType must be support or oppose.) if wrong', () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  buyPipe(env)(
+  buy(env)(
     {
       ticker: 'FACTMKT',
       name: '',
@@ -55,7 +55,7 @@ test('should throw (qty must be an integer greater than zero.) if undefined', as
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  buyPipe(env)(
+  buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -80,7 +80,7 @@ test('should throw (qty must be an integer greater than zero.) if less than 0', 
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  buyPipe(env)(
+  buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -105,7 +105,7 @@ test('should throw (qty must be an integer greater than zero.) if string', async
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  buyPipe(env)(
+  buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -130,7 +130,7 @@ test('should throw (Incorrect price.)', async () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  buyPipe(env)(
+  buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -165,7 +165,7 @@ test('should throw (Incorrect fee.)', async () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  buyPipe(env)(
+  buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -202,7 +202,7 @@ test('should throw (Error: An error occurred while claiming the pair.) if claim 
   const caller = '<justin>';
   const txId = '<txId>';
   const pair = '<pair>';
-  await buyPipe(env)(
+  await buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -242,7 +242,43 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
   const caller = '<justin>';
   const txId = '<txId>';
   const pair = '<pair>';
-  const output = await buyPipe(env)(
+  const output = await buy(env)(
+    {
+      ticker: 'FACTMKT',
+      title: '',
+      creator: '',
+      position: 'support',
+      creator_cut: 0,
+      balances: {
+        '<jshaw>': 99,
+      },
+      oppositionBalances: {},
+      pair,
+      settings: [
+        ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+        ['isTradeable', true],
+      ],
+    },
+    {
+      caller,
+      input: {
+        positionType: 'support',
+        qty: 1,
+        price: 100,
+        fee: 5,
+      },
+    }
+  ).catch((e) => {
+    assert.equal(e.message, 'txId is required.');
+  });
+});
+
+test('should buy 1 support token for 100 base units with a fee of 5 base units', async () => {
+  const env = setupSmartWeaveEnv({ write: true });
+  const caller = '<justin>';
+  const txId = '<txId>';
+  const pair = '<pair>';
+  const output = await buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
@@ -271,26 +307,26 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
     }
   );
   const { state } = output;
-  console.log('State', state);
   assert.is(state.creator_cut, 5);
-  assert.is(state.balancves[caller], 1);
+  assert.is(state.balances[caller], 1);
 });
+
 test('should buy 1 oppose token for 100 base units with a fee of 5 base units', async () => {
   const env = setupSmartWeaveEnv({ write: true });
   const caller = '<justin>';
   const txId = '<txId>';
   const pair = '<pair>';
-  const output = await buyPipe(env)(
+  const output = await buy(env)(
     {
       ticker: 'FACTMKT',
       title: '',
       creator: '',
       position: 'oppose',
       creator_cut: 0,
-      balances: {
+      balances: {},
+      oppositionBalances: {
         '<jshaw>': 99,
       },
-      oppositionBalances: {},
       pair,
       settings: [
         ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -309,7 +345,84 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
     }
   );
   const { state } = output;
-  console.log('State', state);
+  assert.is(state.creator_cut, 5);
+  assert.is(state.oppositionBalances[caller], 1);
+});
+
+test('should buy 2 support token for 200 base units with a fee of 10 base units', async () => {
+  const env = setupSmartWeaveEnv({ write: true });
+  const caller = '<justin>';
+  const txId = '<txId>';
+  const pair = '<pair>';
+  const output = await buy(env)(
+    {
+      ticker: 'FACTMKT',
+      title: '',
+      creator: '',
+      position: 'support',
+      creator_cut: 0,
+      balances: {
+        '<jshaw>': 99,
+      },
+      oppositionBalances: {},
+      pair,
+      settings: [
+        ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+        ['isTradeable', true],
+      ],
+    },
+    {
+      caller,
+      input: {
+        positionType: 'support',
+        qty: 2,
+        price: 200,
+        fee: 10,
+        txId,
+      },
+    }
+  );
+  const { state } = output;
+  assert.is(state.creator_cut, 10);
+  assert.is(state.balances[caller], 2);
+});
+
+test('should buy 2 oppose token for 200 base units with a fee of 10 base units', async () => {
+  const env = setupSmartWeaveEnv({ write: true });
+  const caller = '<justin>';
+  const txId = '<txId>';
+  const pair = '<pair>';
+  const output = await buy(env)(
+    {
+      ticker: 'FACTMKT',
+      title: '',
+      creator: '',
+      position: 'oppose',
+      creator_cut: 0,
+      balances: {},
+      oppositionBalances: {
+        '<jshaw>': 99,
+      },
+      pair,
+      settings: [
+        ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+        ['isTradeable', true],
+      ],
+    },
+    {
+      caller,
+      input: {
+        positionType: 'oppose',
+        qty: 2,
+        price: 200,
+        fee: 10,
+        txId,
+      },
+    }
+  );
+  const { state } = output;
+  assert.is(state.creator_cut, 10);
+  assert.is(state.oppositionBalances[caller], 2);
 });
 
 test.run();
