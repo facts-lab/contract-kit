@@ -12,6 +12,14 @@ import {
   getFee,
 } from '../util.js';
 
+/**
+ * @description Purchases support or opppose tokens with the pair.
+ *
+ * @author @jshaw-ar
+ * @export
+ * @param {*} { write, transaction }
+ * @return {*}
+ */
 export function buy({ write, transaction }) {
   return async (state, action) => {
     return (
@@ -82,7 +90,8 @@ export function buy({ write, transaction }) {
  * @desription Uses Foreign Call Protocol to claim a transfer from the pair.
  *
  * @author @jshaw-ar
- * @param {*} { pair, txId, qty, write }
+ * @param {*} { price, fee, state, action, write, transaction }
+ * @returns {*} { price, fee, state, action, write, transaction }
  */
 const claimPair = async ({ price, fee, state, action, write, transaction }) => {
   const result = await write(state.pair, {
@@ -97,7 +106,8 @@ const claimPair = async ({ price, fee, state, action, write, transaction }) => {
  * @desription Uses Foreign Call Protocol to claim a transfer from the pair.
  *
  * @author @jshaw-ar
- * @param {*} { pair, txId, qty, write }
+ * @param {*} { price, fee, state, action, write, type, transaction }
+ * @returns {*} { price, fee, state, action, write, type, transaction }
  */
 const rejectClaim = async ({
   price,
@@ -121,8 +131,8 @@ const rejectClaim = async ({
  * @description Adds fee to the creator balance if positionType is the same as state.position
  *
  * @author @jshaw-ar
- * @param {*} { price, fee, state, action }
- * @return {*}
+ * @param {*} { price, fee, state, action, write, type, transaction }
+ * @return {*} { price, fee, state, action, write, type, transaction }
  */
 const creatorCut = ({
   price,
@@ -145,8 +155,8 @@ const creatorCut = ({
  * Updates the support or opposition balance of the caller
  *
  * @author @jshaw-ar
- * @param {*} { price, fee, state, action, write, type }
- * @return {*} {pair, txId, qty}
+ * @param {*} { price, fee, state, action, write, type, transaction }
+ * @return {*} { price, fee, state, action, write, type, transaction }
  */
 const updateBalance = ({
   price,
@@ -170,6 +180,19 @@ const updateBalance = ({
   return { price, fee, state, action, write, type, transaction };
 };
 
+/**
+ * @description Registers interaction with the registry contract
+ *
+ * @author @jshaw-ar
+ * @param {*} {
+ *   price,
+ *   fee,
+ *   state,
+ *   write,
+ *   transaction,
+ *   type,
+ * }
+ */
 const registerInteraction = async ({
   price,
   fee,
