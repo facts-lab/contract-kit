@@ -11,6 +11,9 @@ export function setupSmartWeaveEnv({
 }) {
   const pairs = toPairs(balances);
   const map = new Map(pairs);
+  const rejected = [];
+  const registered = [];
+  const claimed = [];
 
   globalThis.SmartWeave = {
     transaction: {
@@ -22,9 +25,14 @@ export function setupSmartWeaveEnv({
     },
     contracts: {
       readContractState: async (contract) => readContractState,
-      write: async (pair, input) => ({
-        type: write ? 'ok' : 'error',
-      }),
+      write: async (pair, input) => {
+        if (input.function === 'reject') rejected.push(input.tx);
+        if (input.function === 'register') registered.push(input.tx);
+        if (input.function === 'claim') claimed.push(input.txID);
+        return {
+          type: write ? 'ok' : 'error',
+        };
+      },
       viewContractState: async (contract, input) => ({
         result: viewContractState,
       }),
@@ -45,6 +53,9 @@ export function setupSmartWeaveEnv({
     write: SmartWeave.contracts.write.bind(globalThis.SmartWeave),
     block: SmartWeave.block,
     transaction: SmartWeave.transaction,
+    registered: () => registered,
+    rejected: () => rejected,
+    claimed: () => claimed,
   };
 }
 
