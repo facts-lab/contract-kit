@@ -1,14 +1,17 @@
-import { balance } from './read/balance';
-import { transfer } from './write/transfer';
+import { buyPipe } from './write/buy';
 
 export async function handle(state, action) {
-  const input = action.input;
+  const env = {
+    readContractState: SmartWeave.contracts.readContractState.bind(SmartWeave),
+    viewContractState: SmartWeave.contracts.viewContractState.bind(SmartWeave),
+    write: SmartWeave.contracts.write.bind(SmartWeave),
+    block: SmartWeave.block,
+    transaction: SmartWeave.transaction,
+  };
 
-  switch (input.function) {
-    case 'balance':
-      return await balance(state, action);
-    case 'transfer':
-      return await transfer(state, action);
+  switch (action.input.function) {
+    case 'buy':
+      return buyPipe(env)(state, action);
     default:
       throw new ContractError(
         `No function supplied or function not recognized`

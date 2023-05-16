@@ -1,18 +1,14 @@
 {
-  "ticker": "",
-  "name": "",
+  "ticker": "FACTMKT",
+  "title": "",
+  "creator": "",
+  "position": "",
+  "creator_cut": 0,
   "balances": {},
-  "registry": {
-    "tx": "",
-    "qty": 0,
-    "from": ""
-  },
-  "fulfilled": {},
+  "oppositionBalances": {},
+  "pair": "",
   "settings": [
-    ["communityLogo", "_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo"],
+    ["communityLogo", "dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80"],
     ["isTradeable", true]
-  ],
-  "claims": [],
-  "claimable": [],
-  "divisibility": 12
+  ]
 }
