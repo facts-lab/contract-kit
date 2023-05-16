@@ -14,6 +14,7 @@ test('should throw (positionType must be support or oppose.) if undefined', () =
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: '',
       creator_cut: 0,
@@ -59,6 +60,7 @@ test('should throw (qty must be an integer greater than zero.) if undefined', as
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: '',
       creator_cut: 0,
@@ -84,6 +86,7 @@ test('should throw (qty must be an integer greater than zero.) if less than 0', 
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: '',
       creator_cut: 0,
@@ -109,6 +112,7 @@ test('should throw (qty must be an integer greater than zero.) if string', async
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: '',
       creator_cut: 0,
@@ -134,6 +138,7 @@ test('should throw (Incorrect price.)', async () => {
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: '',
       creator_cut: 0,
@@ -169,6 +174,7 @@ test('should throw (Incorrect fee.)', async () => {
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: '',
       creator_cut: 0,
@@ -206,6 +212,7 @@ test('should throw (Error: An error occurred while claiming the pair.) if claim 
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: 'support',
       creator_cut: 0,
@@ -246,6 +253,7 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: 'support',
       creator_cut: 0,
@@ -282,6 +290,7 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: 'support',
       creator_cut: 0,
@@ -320,6 +329,7 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: 'oppose',
       creator_cut: 0,
@@ -358,6 +368,7 @@ test('should buy 2 support token for 200 base units with a fee of 10 base units'
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: 'support',
       creator_cut: 0,
@@ -383,12 +394,14 @@ test('should buy 2 support token for 200 base units with a fee of 10 base units'
     }
   );
   const { state } = output;
+  assert.is(env.claimed()[0], txId);
+  assert.is(env.registered()[0], env.transaction.id);
   assert.is(state.creator_cut, 10);
   assert.is(state.balances[caller], 2);
 });
 
-test('should buy 2 oppose token for 200 base units with a fee of 10 base units', async () => {
-  const env = setupSmartWeaveEnv({ write: true });
+test('should return the previous state because of the FCP error.', async () => {
+  const env = setupSmartWeaveEnv({ write: false });
   const caller = '<justin>';
   const txId = '<txId>';
   const pair = '<pair>';
@@ -396,6 +409,7 @@ test('should buy 2 oppose token for 200 base units with a fee of 10 base units',
     {
       ticker: 'FACTMKT',
       title: '',
+      registry: '',
       creator: '',
       position: 'oppose',
       creator_cut: 0,
@@ -420,9 +434,11 @@ test('should buy 2 oppose token for 200 base units with a fee of 10 base units',
       },
     }
   );
+
   const { state } = output;
-  assert.is(state.creator_cut, 10);
-  assert.is(state.oppositionBalances[caller], 2);
+  assert.is(env.rejected()[0], txId);
+  assert.is(state.creator_cut, 0);
+  assert.is(state.oppositionBalances[caller], undefined);
 });
 
 test.run();
