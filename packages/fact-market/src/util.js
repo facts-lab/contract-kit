@@ -137,10 +137,3 @@ export const allowBalance = async (tokenId, target, qty) => {
   }
   return result;
 };
-
-/**
- * @description Registers buy interactions with the registry.
- *
- * @author @jshaw-ar
- */
-function register() {}
