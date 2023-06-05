@@ -1,9 +1,10 @@
 import Async from 'hyper-async';
 const { of, fromPromise } = Async;
+import { of as syncOf, fromNullable } from '../hyper-either.js';
 import {
   POSITION_TYPES,
   calculatePrice,
-  ceAsync,
+  ce,
   getBalances,
   getCurrentSupply,
   roundUp,
@@ -11,6 +12,10 @@ import {
   isInteger,
   getFee,
 } from '../util.js';
+
+// validate
+// transform
+// update
 
 /**
  * @description Purchases support or opppose tokens with the pair.
@@ -20,71 +25,112 @@ import {
  * @param {*} { write, transaction }
  * @return {*}
  */
-export function buy({ write, transaction }) {
-  return async (state, action) => {
-    return (
-      of({ state, action })
-        .chain(
-          ceAsync(
-            !POSITION_TYPES.includes(action?.input?.positionType),
-            'positionType must be support or oppose.'
-          )
-        )
-        .chain(
-          ceAsync(
-            !isInteger(roundDown(action?.input?.qty)),
-            'qty must be an integer greater than zero.'
-          )
-        )
-        .chain(
-          ceAsync(
-            roundDown(action?.input?.qty) < 1,
-            'qty must be an integer greater than zero.'
-          )
-        )
-        .chain(ceAsync(!action?.input?.txId, 'txId is required.'))
-        .map(getBalances)
-        .map(getCurrentSupply)
-        .map((supply) =>
-          roundUp(
-            calculatePrice(1, 1, supply, supply + roundDown(action.input.qty))
-          )
-        )
-        .map(getFee)
-        .chain(({ price, fee }) =>
-          ceAsync(
-            price !== action.input.price,
-            'Incorrect price.'
-          )({ price, fee })
-        )
-        .chain(({ price, fee }) =>
-          ceAsync(fee !== action.input.fee, 'Incorrect fee.')({ price, fee })
-        )
-        .map(({ price, fee }) => ({ price, fee, state, action }))
-        .chain(({ price, fee, state, action }) =>
-          fromPromise(claimPair)({
-            price,
-            fee,
-            state,
-            action,
-            write,
-            transaction,
-          })
-        )
-        .chain(fromPromise(rejectClaim)) // Only rejects if claim returns "error"
-        // The next 3 steps only run if claim returns "ok"
-        .map(creatorCut)
-        .map(updateBalance)
-        .chain(fromPromise(registerInteraction))
-        .fork(
-          (msg) => {
-            throw new ContractError(msg || 'An error occurred.');
-          },
-          () => ({ state })
-        )
-    );
-  };
+export function buy({ contracts, transaction }) {
+  return async (state, action) =>
+    of({ state, action })
+      .map(validate)
+      .map(transform)
+      .chain(({ price, fee }) =>
+        fromPromise(claimPair)({
+          price,
+          fee,
+          pair: state.pair,
+          tx: action.input.tx,
+          contracts,
+        })
+      )
+
+      // Next 4 steps Only rejects if input is "error" (result from write / claimPair)
+      .chain(({ type, price, fee }) =>
+        fromPromise(rejectClaim)({
+          type,
+          price,
+          fee,
+          pair: state?.pair,
+          tx: transaction.id,
+          contracts,
+        })
+      )
+
+      .map(({ type, price, fee }) =>
+        creatorCut({ type, price, fee, state, action })
+      )
+      .map(({ type, price, fee }) =>
+        updateBalance({ type, price, fee, state, action })
+      )
+      .chain(({ type, price, fee }) =>
+        fromPromise(registerInteraction)({
+          type,
+          price,
+          fee,
+          contracts,
+          tx: transaction.id,
+        })
+      )
+      .fork(
+        (msg) => {
+          console.log('ERROR', msg);
+          throw new ContractError(msg || 'An error occurred.');
+        },
+        () => ({ state })
+      );
 }
+
+const validate = ({ state, action }) =>
+  syncOf({ state, action })
+    .chain(fromNullable)
+    .chain(
+      ce(
+        !POSITION_TYPES.includes(action?.input?.positionType),
+        'positionType must be support or oppose.'
+      )
+    )
+    .chain(
+      ce(
+        !isInteger(roundDown(action?.input?.qty)),
+        'qty must be an integer greater than zero.'
+      )
+    )
+    .chain(
+      ce(
+        roundDown(action?.input?.qty) < 1,
+        'qty must be an integer greater than zero.'
+      )
+    )
+    .chain(ce(!action?.input?.tx, 'tx is required.'))
+    .fold(
+      (msg) => {
+        throw new ContractError(msg || 'An error occurred.');
+      },
+      () => ({
+        state,
+        action,
+      })
+    );
+
+const transform = ({ state, action }) => {
+  return syncOf({ state, action })
+    .map(getBalances)
+    .map(getCurrentSupply)
+    .map((supply) =>
+      roundUp(
+        calculatePrice(1, 1, supply, supply + roundDown(action.input.qty))
+      )
+    )
+    .map(getFee)
+    .chain(({ price, fee }) =>
+      ce(price !== action.input.price, 'Incorrect price.')({ price, fee })
+    )
+    .chain(({ price, fee }) =>
+      ce(fee !== action.input.fee, 'Incorrect fee.')({ price, fee })
+    )
+    .fold(
+      (msg) => {
+        throw new ContractError(msg || 'An error occurred.');
+      },
+      (input) => input
+    );
+};
 
 /**
  * @desription Uses Foreign Call Protocol to claim a transfer from the pair.
@@ -93,13 +139,17 @@ export function buy({ write, transaction }) {
  * @param {*} { price, fee, state, action, write, transaction }
  * @returns {*} { price, fee, state, action, write, transaction }
  */
-const claimPair = async ({ price, fee, state, action, write, transaction }) => {
-  const result = await write(state.pair, {
+const claimPair = async ({ price, fee, pair, tx, contracts }) => {
+  const result = await contracts.write(pair, {
     function: 'claim',
-    txID: action.input.txId,
+    txID: tx,
     qty: price + fee,
   });
-  return { price, fee, state, action, write, type: result.type, transaction };
+  return {
+    type: result.type,
+    price,
+    fee,
+  };
 };
 
 /**
@@ -109,22 +159,14 @@ const claimPair = async ({ price, fee, state, action, write, transaction }) => {
  * @param {*} { price, fee, state, action, write, type, transaction }
  * @returns {*} { price, fee, state, action, write, type, transaction }
  */
-const rejectClaim = async ({
-  price,
-  fee,
-  state,
-  action,
-  write,
-  type,
-  transaction,
-}) => {
+const rejectClaim = async ({ type, price, fee, pair, tx, contracts }) => {
   if (type === 'error') {
-    await write(state.pair, {
+    await contracts.write(pair, {
       function: 'reject',
-      tx: action.input.txId,
+      tx,
     });
   }
-  return { price, fee, state, action, write, type, transaction };
+  return { type, price, fee };
 };
 
 /**
@@ -134,21 +176,13 @@ const rejectClaim = async ({
  * @param {*} { price, fee, state, action, write, type, transaction }
  * @return {*} { price, fee, state, action, write, type, transaction }
  */
-const creatorCut = ({
-  price,
-  fee,
-  state,
-  action,
-  write,
-  type,
-  transaction,
-}) => {
+const creatorCut = ({ type, price, fee, state, action }) => {
   if (type === 'ok') {
     if (action.input.positionType === state.position) {
       state.creator_cut = (state.creator_cut || 0) + fee;
     }
   }
-  return { price, fee, state, action, write, type, transaction };
+  return { type, price, fee };
 };
 
 /**
@@ -158,26 +192,17 @@ const creatorCut = ({
  * @param {*} { price, fee, state, action, write, type, transaction }
  * @return {*} { price, fee, state, action, write, type, transaction }
  */
-const updateBalance = ({
-  price,
-  fee,
-  state,
-  action,
-  write,
-  type,
-  transaction,
-}) => {
+const updateBalance = ({ type, price, fee, state, action }) => {
   if (type === 'ok') {
-    const { input, caller } = action;
-    const { positionType, qty } = input;
-    if (positionType === 'support') {
-      state.balances[caller] = (state.balances[caller] || 0) + qty;
+    if (action.input.positionType === 'support') {
+      state.balances[action.caller] =
+        (state.balances[action.caller] || 0) + action.input.qty;
     } else {
-      state.oppositionBalances[caller] =
-        (state.oppositionBalances[caller] || 0) + qty;
+      state.oppositionBalances[action.caller] =
+        (state.oppositionBalances[action.caller] || 0) + action.input.qty;
     }
   }
-  return { price, fee, state, action, write, type, transaction };
+  return { type, price, fee };
 };
 
 /**
@@ -193,18 +218,11 @@ const updateBalance = ({
  *   type,
  * }
  */
-const registerInteraction = async ({
-  price,
-  fee,
-  state,
-  write,
-  transaction,
-  type,
-}) => {
+const registerInteraction = async ({ type, price, fee, contracts, tx }) => {
   if (type === 'ok') {
-    await write(state.registry, {
+    await contracts.write('<FACTS_CONTRACT_ID>', {
       function: 'register',
-      tx: transaction.id,
+      tx: tx,
       qty: price + fee,
     });
   }
