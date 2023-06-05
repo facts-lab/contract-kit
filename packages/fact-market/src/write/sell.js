@@ -19,7 +19,7 @@ import {
  * @param {*} { write, transaction }
  * @return {*}
  */
-export function sell({ write, transaction }) {
+export function sell({ contracts, transaction }) {
   return async (state, action) => {
     return of({ state, action })
       .chain(
