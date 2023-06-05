@@ -1,8 +1,14 @@
+import Async from 'hyper-async';
+const { of, fromPromise } = Async;
 import {
-  allowBalance,
+  POSITION_TYPES,
   calculatePrice,
+  ceAsync,
+  getBalances,
   getCurrentSupply,
-  distribute,
+  roundUp,
+  roundDown,
+  isInteger,
 } from '../util.js';
 
 /**
@@ -34,17 +40,81 @@ export function sell({ write, transaction }) {
           'qty must be an integer greater than zero.'
         )
       )
+      .map(getBalances)
+      .chain((balances) =>
+        ceAsync(
+          (balances[action?.caller] || 0) < roundDown(action?.input?.qty),
+          'Caller balance too low.'
+        )(balances)
+      )
+      .map(getCurrentSupply)
+      .map(
+        (supply) =>
+          roundUp(
+            calculatePrice(1, 1, supply, supply - roundDown(action.input.qty))
+          ) * -1
+      )
+      .chain((amount) =>
+        ceAsync(
+          action?.input?.expected !== amount,
+          'The price has changed.'
+        )(amount)
+      )
+      .chain((amount) =>
+        fromPromise(allowPair)({
+          amount,
+          caller: action.caller,
+          pair: state.pair,
+        })
+      )
       .fork(
         (msg) => {
           throw new ContractError(msg || 'An error occurred.');
         },
         () => {
-          console.log('done');
           return { state };
         }
       );
   };
 }
+
+/**
+ * @desription Uses Foreign Call Protocol to create a transfer from the pair.
+ *
+ * @author @jshaw-ar
+ * @param {*} { price, fee, state, action, write, transaction }
+ * @returns {*} { price, fee, state, action, write, transaction }
+ */
+const allowPair = async ({ amount, caller, pair, write }) => {
+  const result = await write(pair, {
+    function: 'allow',
+    target: caller,
+    qty: amount,
+  });
+
+  return { amount, caller, type: result.type };
+};
+
+/**
+ * Updates the support or opposition balance of the caller
+ *
+ * @author @jshaw-ar
+ * @param {*} { price, fee, state, action, write, type, transaction }
+ * @return {*} { price, fee, state, action, write, type, transaction }
+ */
+const updateBalance = ({ qty, state, action, type }) => {
+  if (type === 'ok') {
+    const { input, caller } = action;
+    const { positionType, qty } = input;
+    if (positionType === 'support') {
+      state.balances[caller] = (state.balances[caller] || 0) + qty;
+    } else {
+      state.oppositionBalances[caller] =
+        (state.oppositionBalances[caller] || 0) + qty;
+    }
+  }
+  return { price, fee, state, action, write, type, transaction };
+};
 // export async function sell(state, action) {
 //   const caller = action.caller;
 //   const { positionType, expected } = action.input;
