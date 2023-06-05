@@ -14,6 +14,7 @@ export function setupSmartWeaveEnv({
   const rejected = [];
   const registered = [];
   const claimed = [];
+  const allowed = [];
 
   globalThis.SmartWeave = {
     transaction: {
@@ -29,6 +30,7 @@ export function setupSmartWeaveEnv({
         if (input.function === 'reject') rejected.push(input.tx);
         if (input.function === 'register') registered.push(input.tx);
         if (input.function === 'claim') claimed.push(input.txID);
+        if (input.function === 'allow') allowed.push(input.target);
         return {
           type: write ? 'ok' : 'error',
         };
@@ -46,16 +48,13 @@ export function setupSmartWeaveEnv({
   globalThis.ContractError = ContractError;
   return {
     kv: SmartWeave.kv,
-    readContractState: async (contract) =>
-      SmartWeave.contracts.readContractState(contract),
-    viewContractState: async (contract, input) =>
-      SmartWeave.contracts.viewContractState(contract, input),
-    write: SmartWeave.contracts.write.bind(globalThis.SmartWeave),
+    contracts: SmartWeave.contracts,
     block: SmartWeave.block,
     transaction: SmartWeave.transaction,
     registered: () => registered,
     rejected: () => rejected,
     claimed: () => claimed,
+    allowed: () => allowed,
   };
 }
 
