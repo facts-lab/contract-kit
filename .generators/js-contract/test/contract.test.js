@@ -12,9 +12,9 @@ let wallet1;
 let connectedWallet1;
 let arlocal;
 
-const fact-market = suite('fact-market');
+const test = suite('contract');
 
-fact-market.before(async () => {
+test.before(async () => {
   arlocal = new ArLocal.default();
   await arlocal.start();
   LoggerFactory.INST.logLevel('error');
@@ -55,8 +55,8 @@ fact-market.before(async () => {
     .connect(wallet1.jwk);
 });
 
-fact-market('should transfer 10', async () => {
-  // transfer 10 fact-market winston
+test('should transfer 10', async () => {
+  // transfer 10 test winston
   await connectedWallet1.writeInteraction(
     {
       function: 'transfer',
@@ -69,8 +69,8 @@ fact-market('should transfer 10', async () => {
   assert.is(state.balances['<some-wallet>'], 10);
 });
 
-fact-market.after(async () => {
+test.after(async () => {
   await arlocal.stop();
 });
 
-fact-market.run();
+test.run();
