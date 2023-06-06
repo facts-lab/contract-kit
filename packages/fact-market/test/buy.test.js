@@ -159,7 +159,7 @@ test('should throw (Incorrect price.)', async () => {
         qty: 1,
         price: 99,
         fee: 5,
-        txId: '<txId>',
+        tx: '<tx>',
       },
     }
   ).catch((e) => {
@@ -195,7 +195,7 @@ test('should throw (Incorrect fee.)', async () => {
         qty: 1,
         price: 100,
         fee: 4,
-        txId: '<txId>',
+        tx: '<tx>',
       },
     }
   ).catch((e) => {
@@ -206,7 +206,7 @@ test('should throw (Incorrect fee.)', async () => {
 test('should throw (Error: An error occurred while claiming the pair.) if claim doesnt work.', async () => {
   const env = setupSmartWeaveEnv({ write: false });
   const caller = '<justin>';
-  const txId = '<txId>';
+  const tx = '<tx>';
   const pair = '<pair>';
   await buy(env)(
     {
@@ -233,7 +233,7 @@ test('should throw (Error: An error occurred while claiming the pair.) if claim 
         qty: 1,
         price: 100,
         fee: 5,
-        txId,
+        tx,
       },
     }
   ).catch((e) => {
@@ -244,10 +244,10 @@ test('should throw (Error: An error occurred while claiming the pair.) if claim 
   });
 });
 
-test('should buy 1 support token for 100 base units with a fee of 5 base units', async () => {
+test('should throw (tx is required)', async () => {
   const env = setupSmartWeaveEnv({ write: true });
   const caller = '<justin>';
-  const txId = '<txId>';
+  const tx = '<tx>';
   const pair = '<pair>';
   const output = await buy(env)(
     {
@@ -277,14 +277,14 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
       },
     }
   ).catch((e) => {
-    assert.equal(e.message, 'txId is required.');
+    assert.equal(e.message, 'tx is required.');
   });
 });
 
 test('should buy 1 support token for 100 base units with a fee of 5 base units', async () => {
   const env = setupSmartWeaveEnv({ write: true });
   const caller = '<justin>';
-  const txId = '<txId>';
+  const tx = '<tx>';
   const pair = '<pair>';
   const output = await buy(env)(
     {
@@ -311,7 +311,7 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
         qty: 1,
         price: 100,
         fee: 5,
-        txId,
+        tx,
       },
     }
   );
@@ -323,7 +323,7 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
 test('should buy 1 oppose token for 100 base units with a fee of 5 base units', async () => {
   const env = setupSmartWeaveEnv({ write: true });
   const caller = '<justin>';
-  const txId = '<txId>';
+  const tx = '<tx>';
   const pair = '<pair>';
   const output = await buy(env)(
     {
@@ -350,7 +350,7 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
         qty: 1,
         price: 100,
         fee: 5,
-        txId,
+        tx,
       },
     }
   );
@@ -362,7 +362,7 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
 test('should buy 2 support token for 200 base units with a fee of 10 base units', async () => {
   const env = setupSmartWeaveEnv({ write: true });
   const caller = '<justin>';
-  const txId = '<txId>';
+  const tx = '<tx>';
   const pair = '<pair>';
   const output = await buy(env)(
     {
@@ -389,12 +389,12 @@ test('should buy 2 support token for 200 base units with a fee of 10 base units'
         qty: 2,
         price: 200,
         fee: 10,
-        txId,
+        tx,
       },
     }
   );
   const { state } = output;
-  assert.is(env.claimed()[0], txId);
+  assert.is(env.claimed()[0], tx);
   assert.is(env.registered()[0], env.transaction.id);
   assert.is(state.creator_cut, 10);
   assert.is(state.balances[caller], 2);
@@ -403,7 +403,7 @@ test('should buy 2 support token for 200 base units with a fee of 10 base units'
 test('should return the previous state because of the FCP error.', async () => {
   const env = setupSmartWeaveEnv({ write: false });
   const caller = '<justin>';
-  const txId = '<txId>';
+  const tx = '<test-tx>';
   const pair = '<pair>';
   const output = await buy(env)(
     {
@@ -430,13 +430,13 @@ test('should return the previous state because of the FCP error.', async () => {
         qty: 2,
         price: 200,
         fee: 10,
-        txId,
+        tx,
       },
     }
   );
 
   const { state } = output;
-  assert.is(env.rejected()[0], txId);
+  assert.is(env.rejected()[0], tx);
   assert.is(state.creator_cut, 0);
   assert.is(state.oppositionBalances[caller], undefined);
 });

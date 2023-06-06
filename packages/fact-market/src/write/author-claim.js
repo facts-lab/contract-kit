@@ -1,6 +1,7 @@
 import { distribute } from '../../util';
 
-export async function withdraw(state, action) {
+export async function authorClaim(state, action) {
+  throw new ContractError('REVIEW THIS');
   if (state.creator === action.caller) {
     const result = await distribute(
       state.creator,
