@@ -39,4 +39,4 @@ testem.log
 Thumbs.db
 
 #Project Docs
-logs
+logs/
