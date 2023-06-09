@@ -6,10 +6,5 @@
   "creator_cut": 0,
   "balances": {},
   "oppositionBalances": {},
-  "pair": "",
-  "registry": "",
-  "settings": [
-    ["communityLogo", "dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80"],
-    ["isTradeable", true]
-  ]
+  "pair": ""
 }
