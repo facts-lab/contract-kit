@@ -132,7 +132,7 @@ test('should distribute.', async () => {
   );
 
   const { state } = output;
-  assert.is(env.balances()[caller], 1);
+  assert.is(env.balances()[state.creator], 1);
   assert.is(state.creator_cut, 0);
 });
 
