@@ -281,4 +281,86 @@ test('should sell 1 support token for 100 base units with a fee of 5 base units'
   assert.is(state.balances[caller], 0);
 });
 
+test('should distribute to creator', async () => {
+  const env = setupSmartWeaveEnv({ write: true });
+  const caller = '<justin>';
+  const creator = 'test';
+  const txId = '<txId>';
+  const pair = '<pair>';
+  const output = await sell(env)(
+    {
+      ticker: 'FACTMKT',
+      title: '',
+      registry: '',
+      creator,
+      position: 'support',
+      creator_cut: 50000,
+      balances: {
+        '<jshaw>': 99,
+        '<justin>': 1,
+      },
+      oppositionBalances: {},
+      pair,
+      settings: [
+        ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+        ['isTradeable', true],
+      ],
+    },
+    {
+      caller,
+      input: {
+        positionType: 'support',
+        expected: 99,
+        qty: 1,
+      },
+    }
+  );
+  const { state } = output;
+
+  assert.is(state.creator_cut, 0);
+  assert.is(state.balances[caller], 0);
+  assert.is(env?.balances()['test'], 50000);
+});
+
+test('should not distribute to creator', async () => {
+  const env = setupSmartWeaveEnv({ write: true });
+  const caller = '<justin>';
+  const creator = 'test';
+  const txId = '<txId>';
+  const pair = '<pair>';
+  const output = await sell(env)(
+    {
+      ticker: 'FACTMKT',
+      title: '',
+      registry: '',
+      creator,
+      position: 'support',
+      creator_cut: 49000,
+      balances: {
+        '<jshaw>': 99,
+        '<justin>': 1,
+      },
+      oppositionBalances: {},
+      pair,
+      settings: [
+        ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+        ['isTradeable', true],
+      ],
+    },
+    {
+      caller,
+      input: {
+        positionType: 'support',
+        expected: 99,
+        qty: 1,
+      },
+    }
+  );
+  const { state } = output;
+
+  assert.is(state.creator_cut, 49000);
+  assert.is(state.balances[caller], 0);
+  assert.is(env?.balances()['test'], undefined);
+});
+
 test.run();
