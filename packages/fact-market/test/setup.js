@@ -15,6 +15,7 @@ export function setupSmartWeaveEnv({
   const registered = [];
   const claimed = [];
   const allowed = [];
+  const newBalances = {};
 
   globalThis.SmartWeave = {
     transaction: {
@@ -31,6 +32,10 @@ export function setupSmartWeaveEnv({
         if (input.function === 'register') registered.push(input.tx);
         if (input.function === 'claim') claimed.push(input.txID);
         if (input.function === 'allow') allowed.push(input.target);
+        if (input.function === 'transfer') {
+          const balance = newBalances[input.target] || 0;
+          newBalances[input.target] = balance + input.qty;
+        }
         return {
           type: write ? 'ok' : 'error',
         };
@@ -55,6 +60,7 @@ export function setupSmartWeaveEnv({
     rejected: () => rejected,
     claimed: () => claimed,
     allowed: () => allowed,
+    balances: () => newBalances,
   };
 }
 
