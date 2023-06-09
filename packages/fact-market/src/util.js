@@ -64,28 +64,6 @@ export function roundUp(v) {
 }
 
 /**
- * @export
- * @param {number} price
- * @returns {object} {price, fee}
- */
-export const getFee = (price) => ({
-  fee: roundUp((5 / 100) * price),
-  price,
-});
-
-/**
- * @export
- * @param {string} wallet
- * @param {number} cut
- * @param {string} pair
- */
-export async function distribute(wallet, cut, pair) {
-  if (cut && cut > 0) {
-    return await allowBalance(pair, wallet, Math.floor(cut));
-  }
-}
-
-/**
  *
  *
  * @export
@@ -122,18 +100,3 @@ export const getBalances = ({ state, action }) =>
   action.input.positionType === 'support'
     ? state.balances
     : state.oppositionBalances;
-
-export const allowBalance = async (tokenId, target, qty) => {
-  const result = await SmartWeave.contracts.write(tokenId, {
-    function: 'allow',
-    target,
-    qty,
-  });
-  // Check that it succeeded
-  if (result.type !== 'ok') {
-    throw new ContractError(
-      `Unable to allow for: ${JSON.stringify({ tokenId, target, qty, result })}`
-    );
-  }
-  return result;
-};
