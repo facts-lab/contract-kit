@@ -33,7 +33,10 @@ export function sell({ contracts }) {
         })
       )
       .map(({ type }) => subtractBalance({ state, action, type }))
-      .chain(() => creatorDistribute())
+      .chain(() => fromPromise(creatorDistribute)({ state, contracts }))
+      .map((input) => {
+        if (input?.type === 'ok') state.creator_cut = 0;
+      })
       .fork(
         (msg) => {
           throw new ContractError(msg || 'An error occurred.');
@@ -137,11 +140,13 @@ const subtractBalance = ({ state, action, type }) => {
 };
 
 const creatorDistribute = async ({ state, contracts }) => {
-  if (creatorDistribute > 50000) {
-    return contracts.write(state.pair, {
+  if (state.creator_cut > 49000) {
+    const result = contracts.write(state.pair, {
       function: 'transfer',
       target: state.creator,
       qty: state.creator_cut,
     });
+
+    return result;
   }
 };
