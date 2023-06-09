@@ -1,5 +1,5 @@
 import Async from 'hyper-async';
-const { of, fromPromise } = Async;
+const { fromPromise } = Async;
 import { of as syncOf, fromNullable } from '../hyper-either.js';
 import {
   POSITION_TYPES,
@@ -10,12 +10,7 @@ import {
   roundUp,
   roundDown,
   isInteger,
-  getFee,
 } from '../util.js';
-
-// validate
-// transform
-// update
 
 /**
  * @description Purchases support or opppose tokens with the pair.
@@ -27,9 +22,9 @@ import {
  */
 export function buy({ contracts, transaction }) {
   return async (state, action) =>
-    of({ state, action })
+    Async.of({ state, action })
       .map(validate)
-      .map(transform)
+      .map(getPriceAndFee)
       .chain(({ price, fee }) =>
         fromPromise(claimPair)({
           price,
@@ -39,7 +34,6 @@ export function buy({ contracts, transaction }) {
           contracts,
         })
       )
-
       // Next 4 steps Only rejects if input is "error" (result from write / claimPair)
       .chain(({ type, price, fee }) =>
         fromPromise(rejectClaim)({
@@ -51,12 +45,11 @@ export function buy({ contracts, transaction }) {
           contracts,
         })
       )
-
       .map(({ type, price, fee }) =>
         creatorCut({ type, price, fee, state, action })
       )
       .map(({ type, price, fee }) =>
-        updateBalance({ type, price, fee, state, action })
+        addBalance({ type, price, fee, state, action })
       )
       .chain(({ type, price, fee }) =>
         fromPromise(registerInteraction)({
@@ -69,13 +62,18 @@ export function buy({ contracts, transaction }) {
       )
       .fork(
         (msg) => {
-          console.log('ERROR', msg);
           throw new ContractError(msg || 'An error occurred.');
         },
         () => ({ state })
       );
 }
 
+/**
+ * Validates the input.
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ */
 const validate = ({ state, action }) =>
   syncOf({ state, action })
     .chain(fromNullable)
@@ -108,7 +106,14 @@ const validate = ({ state, action }) =>
       })
     );
 
-const transform = ({ state, action }) => {
+/**
+ * Calculates and returns the price and fee.
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+const getPriceAndFee = ({ state, action }) => {
   return syncOf({ state, action })
     .map(getBalances)
     .map(getCurrentSupply)
@@ -186,13 +191,13 @@ const creatorCut = ({ type, price, fee, state, action }) => {
 };
 
 /**
- * Updates the support or opposition balance of the caller
+ * Adds the support or opposition balance of the caller
  *
  * @author @jshaw-ar
  * @param {*} { price, fee, state, action, write, type, transaction }
  * @return {*} { price, fee, state, action, write, type, transaction }
  */
-const updateBalance = ({ type, price, fee, state, action }) => {
+const addBalance = ({ type, price, fee, state, action }) => {
   if (type === 'ok') {
     if (action.input.positionType === 'support') {
       state.balances[action.caller] =
@@ -227,3 +232,15 @@ const registerInteraction = async ({ type, price, fee, contracts, tx }) => {
     });
   }
 };
+
+/**
+ * Calculates fee
+ *
+ * @author @jshaw-ar
+ * @param {*} price
+ * @returns {Object} {fee, price}
+ */
+const getFee = (price) => ({
+  fee: roundUp((5 / 100) * price),
+  price,
+});
