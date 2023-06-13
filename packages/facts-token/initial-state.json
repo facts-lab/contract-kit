@@ -6,14 +6,7 @@
     ["communityLogo", "_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo"],
     ["isTradeable", true]
   ],
-  "processed": [],
-  "registered": [
-    {
-      "tx": "<tx>",
-      "amount": "<amount>",
-      "wallet": "<tx>",
-      "fact_market": "<tx>"
-    }
-  ],
-  "divisibility": 100000000
+  "claims": [],
+  "claimable": [],
+  "divisibility": 12
 }

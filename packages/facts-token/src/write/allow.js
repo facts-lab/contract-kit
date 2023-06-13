@@ -2,21 +2,22 @@ import { fromNullable, of } from '../hyper-either.js';
 import { ce, isInteger, roundDown } from '../util.js';
 
 /**
- * @description Transfers U tokens to another address.
+ * @description Creates a transfer that can be claimed.
  *
  * @author @jshaw-ar
  * @export
  * @param {*} state
  * @param {*} action
- * @return {*} state
+ * @return {*} {state}
  */
-export function transfer(state, action) {
-  return of({ state, action })
+export function allow(state, action) {
+  return of(action.caller)
     .chain(fromNullable)
     .chain(ce(!action.input?.target, 'Please specify a target.'))
     .chain(
       ce(action.input?.target === action.caller, 'Target cannot be caller.')
     )
+
     .chain(ce(!isInteger(action.input?.qty), 'qty must be an integer.'))
     .chain(
       ce(
@@ -30,24 +31,20 @@ export function transfer(state, action) {
         'Not enough tokens for transfer.'
       )
     )
-    .map(updateBalances)
+    .map((caller) => {
+      const safeQty = roundDown(action.input.qty);
+      state.balances[caller] -= safeQty;
+      state.claimable.push({
+        from: caller,
+        to: action.input.target,
+        qty: safeQty,
+        txID: SmartWeave.transaction.id,
+      });
+    })
     .fold(
-      (error) => {
-        throw new ContractError(error || 'An error occurred.');
+      (msg) => {
+        throw new ContractError(msg || 'An error occurred.');
       },
       () => ({ state })
     );
 }
-
-/**
- * Updates target and caller balances
- *
- * @author @jshaw-ar
- * @param {*} { state, action }
- */
-const updateBalances = ({ state, action }) => {
-  const safeQty = roundDown(action.input.qty);
-  state.balances[action.caller] -= safeQty;
-  const targetBalance = state.balances[action.input.target] || 0;
-  state.balances[action.input.target] = targetBalance + safeQty;
-};

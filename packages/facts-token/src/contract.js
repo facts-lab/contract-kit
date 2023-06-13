@@ -1,14 +1,26 @@
-import { balance } from './read/balance';
-import { transfer } from './write/transfer';
+import { balance } from './read/balance.js';
+import { transfer } from './write/transfer.js';
+import { claim } from './write/claim.js';
+import { allow } from './write/allow.js';
+import { rejectClaimable } from './write/reject.js';
 
 export async function handle(state, action) {
-  const input = action.input;
+  // Only allow L2 transactions
+  if (SmartWeave.transaction.origin !== 'L2') {
+    return { state };
+  }
 
-  switch (input.function) {
+  switch (action?.input?.function) {
     case 'balance':
-      return await balance(state, action);
+      return balance(state, action);
+    case 'reject':
+      return rejectClaimable(state, action);
     case 'transfer':
-      return await transfer(state, action);
+      return transfer(state, action);
+    case 'allow':
+      return allow(state, action);
+    case 'claim':
+      return claim(state, action);
     default:
       throw new ContractError(
         `No function supplied or function not recognized`

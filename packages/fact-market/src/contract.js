@@ -1,15 +1,26 @@
-import { buy } from './write/buy';
+import { balance } from './read/balance.js';
+import { transfer } from './write/transfer.js';
+import { claim } from './write/claim.js';
+import { allow } from './write/allow.js';
+import { rejectClaimable } from './write/reject.js';
 
 export async function handle(state, action) {
-  const env = {
-    contracts: SmartWeave.contracts,
-    block: SmartWeave.block,
-    transaction: SmartWeave.transaction,
-  };
+  // Only allow L2 transactions
+  if (SmartWeave.transaction.origin !== 'L2') {
+    return { state };
+  }
 
-  switch (action.input.function) {
-    case 'buy':
-      return buy(env)(state, action);
+  switch (action?.input?.function) {
+    case 'balance':
+      return balance(state, action);
+    case 'reject':
+      return rejectClaimable(state, action);
+    case 'transfer':
+      return transfer(state, action);
+    case 'allow':
+      return allow(state, action);
+    case 'claim':
+      return claim(state, action);
     default:
       throw new ContractError(
         `No function supplied or function not recognized`

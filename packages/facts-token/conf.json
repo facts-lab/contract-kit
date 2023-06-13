@@ -1,8 +1,0 @@
-{
-  "opts": {
-    "template": "node_modules/jsdoc-template",
-    "encoding": "utf8",
-    "destination": "./out/",
-    "recurse": true
-  }
-}
