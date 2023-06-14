@@ -1,12 +1,19 @@
 {
-  "ticker": "FACTMKT",
-  "name": "fact-market",
+  "ticker": "FACTS",
+  "name": "Facts Token",
   "balances": {},
+  "claimable": [],
+  "positions": [
+    {
+      "addr": "<wallet>",
+      "tx": "<transaction id>",
+      "contract": "<contract id>",
+      "qty": 0
+    }
+  ],
   "settings": [
-    ["communityLogo", "_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo"],
+    ["communityLogo", "mjvYUCwtJtVLYzlCM_4DQawFF9DjP5y5HEFbdHSPvYQ"],
     ["isTradeable", true]
   ],
-  "claims": [],
-  "claimable": [],
-  "divisibility": 12
+  "divisibility": 1e6
 }
