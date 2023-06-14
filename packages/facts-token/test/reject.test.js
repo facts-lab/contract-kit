@@ -14,8 +14,9 @@ test('should throw txID must be passed to the reject function.', () => {
     () =>
       rejectClaimable(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {
             '<jshaw>': 0,
           },
@@ -46,8 +47,9 @@ test('should throw Claim not addressed to caller.', () => {
     () =>
       rejectClaimable(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {
             '<justin>': 0,
           },
@@ -78,8 +80,9 @@ test('should throw Claim does not exist.', () => {
     () =>
       rejectClaimable(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {
             '<jshaw>': 0,
           },
@@ -108,8 +111,8 @@ test('should reject tokens', async () => {
   const caller = '<some-contract>';
   const output = await rejectClaimable(
     {
-      name: 'U',
-      ticker: 'U',
+      name: 'Facts Token',
+      ticker: 'FACTS',
       settings: [
         ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
         ['isTradeable', true],

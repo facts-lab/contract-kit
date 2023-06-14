@@ -14,8 +14,9 @@ test('should not allow claiming without txId', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -37,8 +38,9 @@ test('should not allow claiming with null txID', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -60,8 +62,9 @@ test('should not allow claiming with non-existing txID', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -83,8 +86,9 @@ test('should throw (Claim not addressed to caller.)', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -111,8 +115,9 @@ test('should throw (Incorrect qty.)', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -140,8 +145,9 @@ test('should throw (Incorrect qty.)', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -169,8 +175,9 @@ test('should not allow claiming with null quantity', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -199,8 +206,9 @@ test('should not allow claiming with incorrect quantity', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {
             '<tom>': 11,
           },
@@ -232,8 +240,9 @@ test('should not allow claiming with null quantity', () => {
     () =>
       claim(
         {
-          name: 'U',
-          ticker: 'U',
+          name: 'Facts Token',
+          ticker: 'FACTS',
+          positions: [],
           balances: {},
           settings: [
             ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -260,8 +269,8 @@ test('should claim tokens', async () => {
   const caller = '<justin>';
   const output = await claim(
     {
-      name: 'U',
-      ticker: 'U',
+      name: 'Facts Token',
+      ticker: 'FACTS',
       balances: {},
       settings: [
         ['communityLogo', '_32hAgwNt4ZVPisYAP3UQNUbwi_6LPUuZldPFCLm0fo'],
@@ -288,6 +297,7 @@ test('should claim tokens', async () => {
         },
       ],
       divisibility: 1e6,
+      positions: [],
     },
     { caller, input: { txID: '<test-claim>', qty: 11 } }
   );

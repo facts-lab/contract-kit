@@ -36,11 +36,7 @@ export function setupSmartWeaveEnv(
   globalThis.ContractError = ContractError;
   return {
     kv: SmartWeave.kv,
-    readContractState: async (contract) =>
-      SmartWeave.contracts.readContractState(contract),
-    viewContractState: async (contract, input) =>
-      SmartWeave.contracts.viewContractState(contract, input),
-    write: SmartWeave.contracts.write.bind(globalThis.SmartWeave),
+    contracts: SmartWeave.contracts,
     block: SmartWeave.block,
     transaction: SmartWeave.transaction,
   };
