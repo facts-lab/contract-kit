@@ -7,13 +7,13 @@ export async function addCoin(state, action) {
   validateUserIsModerator(caller);
 
   const newCoin = {
-    name: input.name,
-    symbol: input.symbol,
-    ranking: input.ranking,
-    image: input.image,
-    tags: input.tags || [],
-    attributeLinks: input.attributeLinks || [],
-    whatIsCoin: input.whatIsCoin,
+    name: input.coin.name,
+    symbol: input.coin.symbol,
+    ranking: input.coin.ranking,
+    image: input.coin.image,
+    tags: input.coin.tags || [],
+    attributeLinks: input.coin.attributeLinks || [],
+    whatIsCoin: input.coin.whatIsCoin,
   };
 
   coins.push(newCoin);

@@ -1,11 +1,11 @@
-import { getCoins } from "./read/getCoins";
-import { getCoin } from "./read/getCoin";
-import { getCoinsByRanking } from "./read/getCoinsByRanking";
-import { getCoinsByTag } from "./read/getCoinsByTag";
-import { addCoin } from "./write/addCoin";
-import { updateCoins } from "./write/updateCoins";
-import { updateCoin } from "./write/updateCoin";
-import { deleteCoin } from "./write/deleteCoin";
+import { getCoins } from "./read/getCoins.js";
+import { getCoin } from "./read/getCoin.js";
+import { getCoinsByRanking } from "./read/getCoinsByRanking.js";
+import { getCoinsByTag } from "./read/getCoinsByTag.js";
+import { addCoin } from "./write/addCoin.js";
+import { updateCoins } from "./write/updateCoins.js";
+import { updateCoin } from "./write/updateCoin.js";
+import { deleteCoin } from "./write/deleteCoin.js";
 
 export async function handle(state, action) {
   const input = action.input;

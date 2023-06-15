@@ -30,15 +30,18 @@ test.before(async () => {
     fs.readFileSync(`${prefix}initial-state.json`, "utf8")
   );
 
-  // Update initial state giving the wallet 100
+  // Update initial state with the wallet as a moderator user
   const initialState = {
     ...state,
-    ...{
-      owner: wallet1.address,
-      balances: {
-        [wallet1.address]: 100,
+    users: [
+      ...state.users,
+      {
+        address: wallet1.address,
+        role: "moderator",
+        watchlist: [],
       },
-    },
+    ],
+    coins: [],
   };
 
   // Deploy contract
@@ -56,7 +59,38 @@ test.before(async () => {
 });
 
 test("should add a coin", async () => {
-  // TODO: Implement test
+  console.log("Calling addCoin function...");
+
+  // Call the addCoin function
+  const writeResult = await connectedWallet1.writeInteraction(
+    {
+      function: "addCoin",
+      coin: {
+        name: "TestCoin",
+        symbol: "TST",
+        ranking: 100,
+        image: "https://example.com/testcoin.png",
+        tags: [{ name: "TestTag", value: "TestValue" }],
+        attributeLinks: [{ name: "TestLink", value: "https://example.com" }],
+        whatIsCoin: "A test coin",
+      },
+    },
+    {}
+  );
+
+  console.log("Write Result: ", writeResult);
+
+  // Read the state of the contract
+  const readResult = await connectedWallet1.readState();
+  const state = readResult.cachedValue.state;
+
+  console.log("State of the contract: ", state, connectedWallet1);
+
+  // Check if the coin was added
+  const addedCoin = state.coins.find((coin) => coin.symbol === "TST");
+  console.log("Added Coin: ", addedCoin);
+
+  assert.ok(addedCoin, "Coin was not added");
 });
 
 test("should update a coin", async () => {
