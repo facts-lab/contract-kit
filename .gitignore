@@ -39,3 +39,7 @@ testem.log
 Thumbs.db
 **/*/out*
 **/*/docs
+logs
+**/*/logs
+packages/*/logs
+packages/facts-token/logs
