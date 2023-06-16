@@ -4,8 +4,6 @@ export async function updateCoins(state, action) {
   const { caller, input } = action;
   const { coins } = state;
 
-  validateUserIsModerator(caller);
-
   const newCoins = input.coins;
 
   newCoins.forEach((newCoin) => {

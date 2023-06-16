@@ -1,5 +1,7 @@
-export function validateUserIsModerator(user) {
-  if (user.role !== "moderator") {
+export function validateUserIsModerator(user, users) {
+  const foundUser = users.find((u) => u.address === user.address);
+
+  if (!foundUser || foundUser.role !== "moderator") {
     throw new ContractError("User is not a moderator");
   }
 }

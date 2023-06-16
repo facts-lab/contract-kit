@@ -1,7 +1,6 @@
 import { getCoins } from "./read/getCoins.js";
 import { getCoin } from "./read/getCoin.js";
 import { getCoinsByRanking } from "./read/getCoinsByRanking.js";
-import { getCoinsByTag } from "./read/getCoinsByTag.js";
 import { addCoin } from "./write/addCoin.js";
 import { updateCoins } from "./write/updateCoins.js";
 import { updateCoin } from "./write/updateCoin.js";
@@ -17,8 +16,6 @@ export async function handle(state, action) {
       return await getCoin(state, action);
     case "getCoinsByRanking":
       return await getCoinsByRanking(state, action);
-    case "getCoinsByTag":
-      return await getCoinsByTag(state, action);
     case "addCoin":
       return await addCoin(state, action);
     case "updateCoins":

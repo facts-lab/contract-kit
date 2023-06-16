@@ -94,31 +94,142 @@ test("should add a coin", async () => {
 });
 
 test("should update a coin", async () => {
-  // TODO: Implement test
+  // Call the updateCoin function
+  await connectedWallet1.writeInteraction(
+    {
+      function: "updateCoin",
+      coin: {
+        symbol: "TST",
+        name: "UpdatedTestCoin",
+        ranking: 1,
+      },
+    },
+    {}
+  );
+
+  // Read the state of the contract
+  const state = (await connectedWallet1.readState()).cachedValue.state;
+
+  // Check if the coin was updated
+  const updatedCoin = state.coins.find((coin) => coin.symbol === "TST");
+  console.log("updated coin and state", updatedCoin, state);
+  assert.is(updatedCoin.name, "UpdatedTestCoin", "Coin was not updated");
 });
 
 test("should update all coins", async () => {
-  // TODO: Implement test
+  // Add some coins
+  await connectedWallet1.writeInteraction({
+    function: "addCoin",
+    coin: {
+      name: "TestCoin1",
+      symbol: "TST1",
+      ranking: 100,
+      image: "https://example.com/testcoin1.png",
+      tags: [{ name: "TestTag", value: "TestValue" }],
+      attributeLinks: [{ name: "TestLink", value: "https://example.com" }],
+      whatIsCoin: "A test coin",
+    },
+  });
+
+  await connectedWallet1.writeInteraction({
+    function: "addCoin",
+    coin: {
+      name: "TestCoin2",
+      symbol: "TST2",
+      ranking: 200,
+      image: "https://example.com/testcoin2.png",
+      tags: [{ name: "TestTag", value: "TestValue" }],
+      attributeLinks: [{ name: "TestLink", value: "https://example.com" }],
+      whatIsCoin: "A second test coin",
+    },
+  });
+
+  // Call the updateCoins function
+  await connectedWallet1.writeInteraction(
+    {
+      function: "updateCoins",
+      coins: [
+        {
+          symbol: "TST1",
+          name: "UpdatedTestCoin1",
+          ranking: 50,
+        },
+        {
+          symbol: "TST2",
+          name: "UpdatedTestCoin2",
+          ranking: 150,
+        },
+      ],
+    },
+    {}
+  );
+
+  // Read the state of the contract
+  const state = (await connectedWallet1.readState()).cachedValue.state;
+
+  // Check if the coins were updated
+  const updatedCoin1 = state.coins.find((coin) => coin.symbol === "TST1");
+  const updatedCoin2 = state.coins.find((coin) => coin.symbol === "TST2");
+
+  console.log("Updated coins and state", updatedCoin1, updatedCoin2, state);
+  assert.is(updatedCoin1.name, "UpdatedTestCoin1", "Coin1 was not updated");
+  assert.is(updatedCoin2.name, "UpdatedTestCoin2", "Coin2 was not updated");
 });
 
-test("should get a specific coin", async () => {
-  // TODO: Implement test
+test("should get a coin", async () => {
+  // Call the getCoin function
+  const result = await connectedWallet1.viewState({
+    function: "getCoin",
+    symbol: "TST",
+  });
+
+  // Check if the coin was retrieved
+  assert.is(result.result.name, "UpdatedTestCoin", "Coin was not retrieved");
 });
 
 test("should get all coins", async () => {
-  // TODO: Implement test
+  // Call the getAllCoins function
+  const response = await connectedWallet1.viewState({
+    function: "getCoins",
+  });
+
+  console.log("Response from getCoins:", response, response.result[0].tags);
+
+  assert.ok(response.result.length > 0, "No coins found");
 });
 
 test("should get coins by ranking", async () => {
-  // TODO: Implement test
-});
+  // Call the getCoinsByRanking function
+  const response = await connectedWallet1.viewState({
+    function: "getCoinsByRanking",
+  });
 
-test("should get coins by tag", async () => {
-  // TODO: Implement test
+  console.log("Response from getCoinsByRanking:", response);
+
+  // Check if the coins are in the correct order
+  const coins = response.result;
+  for (let i = 0; i < coins.length - 1; i++) {
+    assert.ok(
+      coins[i].ranking <= coins[i + 1].ranking,
+      "Coins are not sorted by ranking"
+    );
+  }
 });
 
 test("should delete a coin", async () => {
-  // TODO: Implement test
+  // Call the deleteCoin function with a coin symbol of "TST"
+  await connectedWallet1.writeInteraction({
+    function: "deleteCoin",
+    symbol: "TST",
+  });
+
+  // Read the state of the contract
+  const state = (await connectedWallet1.readState()).cachedValue.state;
+
+  // Make sure the coin was deleted
+  const deletedCoin = state.coins.find((coin) => coin.symbol === "TST");
+  console.log("Deleted Coin:", deletedCoin);
+  assert.ok(!deletedCoin, "Coin was not deleted");
 });
 
 test.after(async () => {

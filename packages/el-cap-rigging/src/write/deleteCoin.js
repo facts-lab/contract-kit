@@ -7,8 +7,6 @@ export async function deleteCoin(state, action) {
 
   const user = users.find((user) => user.address === caller);
 
-  validateUserIsModerator(user);
-
   const coinIndex = coins.findIndex((coin) => coin.symbol === symbol);
 
   if (coinIndex === -1) {
