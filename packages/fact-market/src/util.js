@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { Left, Right } from './hyper-either.js';
+import { Left, Right, of as syncOf } from './hyper-either.js';
 import { Rejected, Resolved } from 'hyper-async';
 
 export const POSITION_TYPES = ['support', 'oppose'];
@@ -97,6 +97,45 @@ export function getCurrentSupply(balances) {
  * @return {object} balances
  */
 export const getBalances = ({ state, action }) =>
-  action.input.positionType === 'support'
+  action.input.position === 'support'
     ? state.balances
     : state.oppositionBalances;
+
+/**
+ * Calculates and returns the price and fee.
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+export const getPriceAndFee = ({ state, action }) => {
+  return syncOf({ state, action })
+    .map(getBalances)
+    .map(getCurrentSupply)
+    .map((supply) =>
+      roundUp(
+        calculatePrice(1, 1, supply, supply + roundDown(action.input.qty))
+      )
+    )
+    .map(getFee)
+    .fold(
+      (error) => {
+        throw new ContractError(
+          error?.message || error || 'An error occurred.'
+        );
+      },
+      (output) => output
+    );
+};
+
+/**
+ * Calculates fee
+ *
+ * @author @jshaw-ar
+ * @param {*} price
+ * @returns {Object} {fee, price}
+ */
+export const getFee = (price) => ({
+  fee: roundUp((5 / 100) * price),
+  price,
+});
