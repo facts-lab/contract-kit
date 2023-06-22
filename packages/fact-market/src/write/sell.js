@@ -58,8 +58,8 @@ const validate = ({ state, action }) => {
     .chain(fromNullable)
     .chain(
       ce(
-        !POSITION_TYPES.includes(action?.input?.positionType),
-        'positionType must be support or oppose.'
+        !POSITION_TYPES.includes(action?.input?.position),
+        'position must be support or oppose.'
       )
     )
     .chain(
@@ -129,7 +129,7 @@ const calculateSell = (supply, qty) =>
  */
 const subtractBalance = ({ state, action, type }) => {
   if (type === 'ok') {
-    if (action.input.positionType === 'support') {
+    if (action.input.position === 'support') {
       state.balances[action.caller] =
         state.balances[action.caller] - action.input.qty;
     } else {
