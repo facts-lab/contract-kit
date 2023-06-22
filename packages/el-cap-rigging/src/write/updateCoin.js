@@ -1,5 +1,5 @@
 export async function updateCoin(state, action) {
-  const { coins, users } = state;
+  const { coins, crew } = state;
   const { caller, input } = action;
   const { coin: updatedCoin } = input;
 

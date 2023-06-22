@@ -1,8 +1,8 @@
-import { validateUserIsModerator } from "../util";
+import { validateCrewMemberIsModerator } from "../util";
 
 export async function addCoin(state, action) {
   const { caller, input } = action;
-  const { coins, users } = state;
+  const { coins, crew } = state;
 
   const newCoin = {
     name: input.coin.name,

@@ -1,11 +1,11 @@
-import { validateUserIsModerator } from "../util";
+import { validateCrewMemberIsModerator } from "../util";
 
 export async function deleteCoin(state, action) {
-  const { coins, users } = state;
+  const { coins, crew } = state;
   const { input } = action;
   const { symbol, caller } = input;
 
-  const user = users.find((user) => user.address === caller);
+  const crewMember = crew.find((crewMember) => crewMember.address === caller);
 
   const coinIndex = coins.findIndex((coin) => coin.symbol === symbol);
 

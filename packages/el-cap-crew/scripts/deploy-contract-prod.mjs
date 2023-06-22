@@ -1,20 +1,20 @@
-import { WarpFactory } from 'warp-contracts';
-import { DeployPlugin, ArweaveSigner } from 'warp-contracts-plugin-deploy';
+import { WarpFactory } from "warp-contracts";
+import { DeployPlugin, ArweaveSigner } from "warp-contracts-plugin-deploy";
 
-import fs from 'fs';
+import fs from "fs";
 
 async function deploy(folder) {
   const jwk = JSON.parse(
     fs.readFileSync(process.env.PATH_TO_WALLET).toString()
   );
   const warp = WarpFactory.forMainnet().use(new DeployPlugin());
-  const contractSrc = fs.readFileSync(`${folder}/contract.js`, 'utf8');
+  const contractSrc = fs.readFileSync(`${folder}/contract.js`, "utf8");
   const stateFromFile = JSON.parse(
-    fs.readFileSync(`${folder}/initial-state.json`, 'utf8')
+    fs.readFileSync(`${folder}/initial-state.json`, "utf8")
   );
-  if (!process.env.WALLET_ADDRESS) {
+  if (!process.env.PATH_TO_WALLET) {
     console.error(
-      'Set proces.env.WALLET_ADDRESS to your wallet addres. eg. 9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4'
+      "Set proces.env.PATH_TO_WALLET to your wallet addres. eg. 9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4"
     );
     process.exit(1);
   }

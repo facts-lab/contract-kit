@@ -35,10 +35,7 @@ test.before(async () => {
     ...state,
     ...{
       owner: wallet1.address,
-      balances: {
-        [wallet1.address]: 100,
-      },
-      users: {}, // empty array of users
+      watchlist: [],
     },
   };
   // Deploy contract
@@ -55,29 +52,13 @@ test.before(async () => {
     .connect(wallet1.jwk);
 });
 
-test("should add user", async () => {
-  // add user
-  await connectedWallet1.writeInteraction(
-    {
-      function: "addUser",
-    },
-    {}
-  );
-
-  // get updated state
-  const state = (await connectedWallet1.readState()).cachedValue.state;
-
-  // check if user was added
-  assert.ok(state.users[wallet1.address], "User not added");
-});
-
 test("should add to watchlist", async () => {
   const newTicker = "NEW";
 
   // add to watchlist
   await connectedWallet1.writeInteraction(
     {
-      function: "addToWatchlist",
+      function: "updateWatchlist",
       ticker: newTicker,
     },
     {}
@@ -85,13 +66,11 @@ test("should add to watchlist", async () => {
 
   // get updated state
   const state = (await connectedWallet1.readState()).cachedValue.state;
-
-  // find user
-  let user = state.users[wallet1.address];
+  console.log("state", state);
 
   // check if ticker was added to watchlist
   assert.ok(
-    user.watchlist.includes(newTicker),
+    state.watchlist.includes(newTicker),
     "Ticker not added to watchlist"
   );
 });
@@ -99,24 +78,29 @@ test("should add to watchlist", async () => {
 test("should remove from watchlist", async () => {
   const tickerToRemove = "NEW";
 
+  let state = (await connectedWallet1.readState()).cachedValue.state;
+
+  console.log("state2", state);
+  assert.ok(
+    state.watchlist.includes(tickerToRemove),
+    "Ticker not added to watchlist"
+  );
+
   // remove from watchlist
   await connectedWallet1.writeInteraction(
     {
-      function: "removeFromWatchlist",
+      function: "updateWatchlist",
       ticker: tickerToRemove,
     },
     {}
   );
 
   // get updated state
-  const state = (await connectedWallet1.readState()).cachedValue.state;
-
-  // find user
-  let user = state.users[wallet1.address];
+  state = (await connectedWallet1.readState()).cachedValue.state;
 
   // check if ticker was removed from watchlist
   assert.not.ok(
-    user.watchlist.includes(tickerToRemove),
+    state.watchlist.includes(tickerToRemove),
     "Ticker not removed from watchlist"
   );
 });

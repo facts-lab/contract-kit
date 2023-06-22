@@ -30,11 +30,11 @@ test.before(async () => {
     fs.readFileSync(`${prefix}initial-state.json`, "utf8")
   );
 
-  // Update initial state with the wallet as a moderator user
+  // Update initial state with the wallet as a moderator crewMember
   const initialState = {
     ...state,
-    users: [
-      ...state.users,
+    crew: [
+      ...state.crew,
       {
         address: wallet1.address,
         role: "moderator",

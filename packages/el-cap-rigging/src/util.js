@@ -1,8 +1,8 @@
-export function validateUserIsModerator(user, users) {
-  const foundUser = users.find((u) => u.address === user.address);
+export function validateCrewMemberIsModerator(crewMember, crew) {
+  const foundCrewMember = crew.find((u) => u.address === crewMember.address);
 
-  if (!foundUser || foundUser.role !== "moderator") {
-    throw new ContractError("User is not a moderator");
+  if (!foundCrewMember || foundCrewMember.role !== "moderator") {
+    throw new ContractError("CrewMember is not a moderator");
   }
 }
 
