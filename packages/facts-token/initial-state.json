@@ -1,19 +1,13 @@
 {
-  "ticker": "FACTS",
-  "name": "Facts Token",
+  "ticker": "T-FACTS",
+  "name": "T Facts Token",
   "balances": {},
   "claimable": [],
-  "positions": [
-    {
-      "addr": "<wallet>",
-      "tx": "<transaction id>",
-      "contract": "<contract id>",
-      "qty": 0
-    }
-  ],
+  "positions": [],
   "settings": [
     ["communityLogo", "mjvYUCwtJtVLYzlCM_4DQawFF9DjP5y5HEFbdHSPvYQ"],
     ["isTradeable", true]
   ],
+  "u": "rO8f4nTVarU6OtU2284C8-BIH6HscNd-srhWznUllTk",
   "divisibility": 1e6
 }

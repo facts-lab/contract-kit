@@ -1,18 +1,8 @@
 {
-  "ticker": "U",
-  "name": "U",
-  "settings": [
-    ["isTradeable", true],
-    ["communityLogo", "J3WXX4OGa6wP5E9oLhNyqlN4deYI7ARjrd5se740ftE"]
-  ],
-  "claimable": [
-    {
-      "txID": "<allow-tx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>",
-      "to": "<to-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>",
-      "from": "9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4",
-      "qty": 1000000
-    }
-  ],
+  "ticker": "TU",
+  "name": "TU",
+  "settings": [["isTradeable", true]],
+  "claimable": [],
   "balances": {
     "9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4": 100000000
   },
