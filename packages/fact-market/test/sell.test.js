@@ -6,7 +6,7 @@ import { setupSmartWeaveEnv } from './setup.js';
 
 const test = suite('sell');
 
-test('should throw (positionType must be support or oppose.) if undefined', () => {
+test('should throw (position must be support or oppose.) if undefined', () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
@@ -28,11 +28,11 @@ test('should throw (positionType must be support or oppose.) if undefined', () =
     },
     { caller, input: {} }
   ).catch((e) => {
-    assert.equal(e.message, 'positionType must be support or oppose.');
+    assert.equal(e.message, 'position must be support or oppose.');
   });
 });
 
-test('should throw (positionType must be support or oppose.) if wrong', () => {
+test('should throw (position must be support or oppose.) if wrong', () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
@@ -46,9 +46,9 @@ test('should throw (positionType must be support or oppose.) if wrong', () => {
         ['isTradeable', true],
       ],
     },
-    { caller, input: { positionType: 'suppor' } }
+    { caller, input: { position: 'suppor' } }
   ).catch((e) => {
-    assert.equal(e.message, 'positionType must be support or oppose.');
+    assert.equal(e.message, 'position must be support or oppose.');
   });
 });
 
@@ -72,7 +72,7 @@ test('should throw (qty must be an integer greater than zero.) if undefined', as
         ['isTradeable', true],
       ],
     },
-    { caller, input: { positionType: 'support' } }
+    { caller, input: { position: 'support' } }
   ).catch((e) => {
     assert.equal(e.message, 'qty must be an integer greater than zero.');
   });
@@ -98,7 +98,7 @@ test('should throw (qty must be an integer greater than zero.) if less than 0', 
         ['isTradeable', true],
       ],
     },
-    { caller, input: { positionType: 'support', qty: 0.1 } }
+    { caller, input: { position: 'support', qty: 0.1 } }
   ).catch((e) => {
     assert.equal(e.message, 'qty must be an integer greater than zero.');
   });
@@ -124,7 +124,7 @@ test('should throw (qty must be an integer greater than zero.) if string', async
         ['isTradeable', true],
       ],
     },
-    { caller, input: { positionType: 'support', qty: '0.1' } }
+    { caller, input: { position: 'support', qty: '0.1' } }
   ).catch((e) => {
     assert.equal(e.message, 'qty must be an integer greater than zero.');
   });
@@ -156,7 +156,7 @@ test('should throw (Incorrect price.)', async () => {
     {
       caller,
       input: {
-        positionType: 'support',
+        position: 'support',
         expected: 98,
         qty: 1,
       },
@@ -192,7 +192,7 @@ test('should throw (Incorrect fee.)', async () => {
     {
       caller,
       input: {
-        positionType: 'support',
+        position: 'support',
         qty: 1,
         price: 100,
         fee: 4,
@@ -230,7 +230,7 @@ test('should throw (Error: An error occurred while claiming the pair.) if claim 
     {
       caller,
       input: {
-        positionType: 'support',
+        position: 'support',
         qty: 1,
         price: 100,
         fee: 5,
@@ -269,7 +269,7 @@ test('should sell 1 support token for 100 base units with a fee of 5 base units'
     {
       caller,
       input: {
-        positionType: 'support',
+        position: 'support',
         expected: 99,
         qty: 1,
       },
@@ -309,7 +309,7 @@ test('should distribute to creator', async () => {
     {
       caller,
       input: {
-        positionType: 'support',
+        position: 'support',
         expected: 99,
         qty: 1,
       },
@@ -350,7 +350,7 @@ test('should not distribute to creator', async () => {
     {
       caller,
       input: {
-        positionType: 'support',
+        position: 'support',
         expected: 99,
         qty: 1,
       },
