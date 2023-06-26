@@ -105,6 +105,30 @@ test("should remove from watchlist", async () => {
   );
 });
 
+test("should add multiple tickers to watchlist", async () => {
+  const newTickers = ["NEW1", "NEW2", "NEW3"];
+
+  // add multiple tickers to watchlist
+  await connectedWallet1.writeInteraction(
+    {
+      function: "addMultipleCoinsToWatchlist",
+      tickers: newTickers,
+    },
+    {}
+  );
+
+  // get updated state
+  const state = (await connectedWallet1.readState()).cachedValue.state;
+
+  // check if tickers were added to watchlist
+  newTickers.forEach((ticker) => {
+    assert.ok(
+      state.watchlist.includes(ticker),
+      `Ticker ${ticker} not added to watchlist`
+    );
+  });
+});
+
 test.after(async () => {
   await arlocal.stop();
 });
