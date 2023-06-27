@@ -29,6 +29,14 @@ async function deploy(folder) {
     wallet: new ArweaveSigner(jwk),
     initState: JSON.stringify(initialState),
     src: contractSrc,
+    evaluationManifest: {
+      evaluationOptions: {
+        sourceType: SourceType.BOTH,
+        internalWrites: true,
+        allowBigInt: true,
+        unsafeClient: 'skip',
+      },
+    },
   });
   console.log(`contractTxId ${deploy.contractTxId}`);
 }
