@@ -139,3 +139,17 @@ export const getFee = (price) => ({
   fee: roundUp((5 / 100) * price),
   price,
 });
+
+/**
+ * Validates a qty is an integer grater than 0
+ *
+ * @author @jshaw-ar
+ * @param {number} qty
+ * @return {boolean}
+ */
+export const isValidQty = (qty) => {
+  if (!qty) return false;
+  if (!isInteger(qty)) return false;
+  if (qty < 1) return false;
+  return true;
+};
