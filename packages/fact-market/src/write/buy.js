@@ -19,8 +19,10 @@ export function buy({ contract }) {
   /**
    * This function should only be called by the FACTS contract as action.caller
    */
-  return (state, action) =>
-    syncOf({ state, action, contract })
+  return (state, action) => {
+    console.log('contract', contract);
+    console.log('action', action);
+    return syncOf({ state, action, contract })
       .map(validate)
       .map(validatePriceAndFee)
       .map(({ type, price, fee }) =>
@@ -32,6 +34,7 @@ export function buy({ contract }) {
         },
         () => ({ state })
       );
+  };
 }
 
 /**

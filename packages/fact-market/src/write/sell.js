@@ -33,10 +33,6 @@ export function sell({ contracts }) {
         })
       )
       .map(({ type }) => subtractBalance({ state, action, type }))
-      .chain(() => fromPromise(creatorDistribute)({ state, contracts }))
-      .map((input) => {
-        if (input?.type === 'ok') state.creator_cut = 0;
-      })
       .fork(
         (msg) => {
           throw new ContractError(msg || 'An error occurred.');
@@ -91,6 +87,7 @@ const validate = ({ state, action }) => {
  */
 const calcualateSellAmount = ({ state, action }) => {
   const balances = getBalances({ state, action });
+  // Make the "expected" amount an optional param
   return syncOf(balances)
     .chain((balances) =>
       ce(
@@ -128,25 +125,11 @@ const calculateSell = (supply, qty) =>
  * @param {*} { state, action, type }
  */
 const subtractBalance = ({ state, action, type }) => {
-  if (type === 'ok') {
-    if (action.input.position === 'support') {
-      state.balances[action.caller] =
-        state.balances[action.caller] - action.input.qty;
-    } else {
-      state.oppositionBalances[action.caller] =
-        state.oppositionBalances[action.caller] - action.input.qty;
-    }
-  }
-};
-
-const creatorDistribute = async ({ state, contracts }) => {
-  if (state.creator_cut > 49000) {
-    const result = contracts.write(state.pair, {
-      function: 'transfer',
-      target: state.creator,
-      qty: state.creator_cut,
-    });
-
-    return result;
+  if (action.input.position === 'support') {
+    state.balances[action.caller] =
+      state.balances[action.caller] - action.input.qty;
+  } else {
+    state.oppositionBalances[action.caller] =
+      state.oppositionBalances[action.caller] - action.input.qty;
   }
 };
