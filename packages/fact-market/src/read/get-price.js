@@ -1,27 +1,10 @@
-import { fromNullable, of } from '../hyper-either.js';
-import { ce, getPriceAndFee, isInteger, roundDown } from '../util.js';
+import { of, Left, Right } from '../hyper-either.js';
+import { getPriceAndFee, isValidQty, roundDown } from '../util.js';
 
-export function getPrice({ transaction }) {
+export function getPrice({ contract }) {
   return (state, action) =>
     of({ state, action })
-      .chain(
-        ce(
-          !['support', 'oppose'].includes(action?.input?.position),
-          'Position must be support or oppose.'
-        )
-      )
-      .chain(
-        ce(
-          !isInteger(roundDown(action?.input?.qty)),
-          'qty must be an integer greater than zero.'
-        )
-      )
-      .chain(
-        ce(
-          roundDown(action?.input?.qty) < 1,
-          'qty must be an integer greater than zero.'
-        )
-      )
+      .chain(validate)
       .map(getPriceAndFee)
       .fold(
         (error) => {
@@ -34,9 +17,27 @@ export function getPrice({ transaction }) {
             qty: roundDown(action?.input?.qty),
             price,
             fee,
-            owner: { addr: transaction.owner, position: state.position },
+            owner: { addr: contract.owner, position: state.position },
             position: action?.input?.position,
+            factMarket: contract.id,
           },
         })
       );
 }
+
+/**
+ * Validate the input
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+const validate = ({ state, action }) => {
+  if (!['support', 'oppose'].includes(action?.input?.position)) {
+    return Left('Position must be support or oppose.');
+  }
+  if (!isValidQty(action?.input?.qty))
+    return Left('qty must be an integer greater than zero.');
+
+  return Right({ state, action });
+};
