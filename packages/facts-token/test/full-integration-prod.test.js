@@ -37,7 +37,7 @@ let contractFactMarket;
 
 const TEST_U_TX = 'FYJOKdtNKl18QgblxgLEZUfJMFUv6tZTQqGTtY-D6jQ';
 const test = suite('full-integration-prod');
-
+const DEPLOY_CONTRACTS = false;
 test.before(async () => {
   const jwk = JSON.parse(
     fs.readFileSync(process.env.PATH_TO_WALLET).toString()
@@ -47,102 +47,108 @@ test.before(async () => {
   warp = WarpFactory.forMainnet().use(new DeployPlugin());
 
   // Grab the contract and initial state
-  const prefix = `./dist/`;
-  const integrationsPrefux = `./contract-integrations/`;
-  const contractSrcFactsToken = fs.readFileSync(`${prefix}contract.js`, 'utf8');
-  // const contractSrcU = fs.readFileSync(
-  //   `${integrationsPrefux}u/contract.js`,
-  //   'utf8'
-  // );
-  const contractSrcFactMarket = fs.readFileSync(
-    `${integrationsPrefux}fact-market/dist/contract.js`,
-    'utf8'
-  );
-
-  const initialStateFactsToken = JSON.parse(
-    fs.readFileSync(`${prefix}initial-state.json`, 'utf8')
-  );
-  // const initialStateU = JSON.parse(
-  //   fs.readFileSync(`${integrationsPrefux}u/initial-state.json`, 'utf8')
-  // );
-  const initialStateFactMarket = JSON.parse(
-    fs.readFileSync(
-      `${integrationsPrefux}fact-market/dist/initial-state.json`,
+  if (DEPLOY_CONTRACTS) {
+    const prefix = `./dist/`;
+    const integrationsPrefux = `./contract-integrations/`;
+    const contractSrcFactsToken = fs.readFileSync(
+      `${prefix}contract.js`,
       'utf8'
-    )
-  );
+    );
+    // const contractSrcU = fs.readFileSync(
+    //   `${integrationsPrefux}u/contract.js`,
+    //   'utf8'
+    // );
+    const contractSrcFactMarket = fs.readFileSync(
+      `${integrationsPrefux}fact-market/dist/contract.js`,
+      'utf8'
+    );
 
-  // // Deploy contracts
-  // contractU = await warp.deploy({
-  //   wallet: new ArweaveSigner(jwk),
-  //   initState: JSON.stringify({
-  //     ...initialStateU,
-  //   }),
-  //   src: contractSrcU,
-  // });
+    const initialStateFactsToken = JSON.parse(
+      fs.readFileSync(`${prefix}initial-state.json`, 'utf8')
+    );
+    // const initialStateU = JSON.parse(
+    //   fs.readFileSync(`${integrationsPrefux}u/initial-state.json`, 'utf8')
+    // );
+    const initialStateFactMarket = JSON.parse(
+      fs.readFileSync(
+        `${integrationsPrefux}fact-market/dist/initial-state.json`,
+        'utf8'
+      )
+    );
 
-  contractFactsToken = await warp.deploy({
-    wallet: new ArweaveSigner(jwk),
-    initState: JSON.stringify({
-      ...initialStateFactsToken,
-      u: TEST_U_TX,
-    }),
-    src: contractSrcFactsToken,
-    evaluationManifest: {
-      evaluationOptions: {
-        sourceType: SourceType.BOTH,
+    // // Deploy contracts
+    // contractU = await warp.deploy({
+    //   wallet: new ArweaveSigner(jwk),
+    //   initState: JSON.stringify({
+    //     ...initialStateU,
+    //   }),
+    //   src: contractSrcU,
+    // });
+
+    contractFactsToken = await warp.deploy({
+      wallet: new ArweaveSigner(jwk),
+      initState: JSON.stringify({
+        ...initialStateFactsToken,
+        u: TEST_U_TX,
+      }),
+      src: contractSrcFactsToken,
+      evaluationManifest: {
+        evaluationOptions: {
+          sourceType: SourceType.BOTH,
+          internalWrites: true,
+          allowBigInt: true,
+          unsafeClient: 'skip',
+        },
+      },
+    });
+
+    contractFactMarket = await warp.deploy({
+      wallet: new ArweaveSigner(jwk),
+      initState: JSON.stringify({
+        ...initialStateFactMarket,
+        position: 'support',
+      }),
+      src: contractSrcFactMarket.replace(
+        '<FACTS_CONTRACT_ID>',
+        contractFactsToken.contractTxId
+      ),
+      evaluationManifest: {
+        evaluationOptions: {
+          sourceType: SourceType.BOTH,
+          internalWrites: true,
+          allowBigInt: true,
+          unsafeClient: 'skip',
+        },
+      },
+    });
+
+    // console.log('contractU', contractU.contractTxId);
+    console.log('contractFactsToken', contractFactsToken.contractTxId);
+    console.log('contractFactMarket', contractFactMarket.contractTxId);
+
+    // Connect wallet to contracts
+    connectedWallet1U = warp
+      .contract(TEST_U_TX)
+      .setEvaluationOptions({
+        remoteStateSyncSource: `https://dre-1.warp.cc/contract`,
+        remoteStateSyncEnabled: true,
         internalWrites: true,
         allowBigInt: true,
         unsafeClient: 'skip',
-      },
-    },
-  });
-
-  contractFactMarket = await warp.deploy({
-    wallet: new ArweaveSigner(jwk),
-    initState: JSON.stringify({
-      ...initialStateFactMarket,
-      position: 'support',
-    }),
-    src: contractSrcFactMarket.replace(
-      '<FACTS_CONTRACT_ID>',
-      contractFactsToken.contractTxId
-    ),
-    evaluationManifest: {
-      evaluationOptions: {
-        sourceType: SourceType.BOTH,
+      })
+      .connect(jwk);
+    connectedWallet1FactsToken = warp
+      .contract(contractFactsToken.contractTxId)
+      .setEvaluationOptions({
+        remoteStateSyncSource: `https://dre-1.warp.cc/contract`,
+        remoteStateSyncEnabled: true,
         internalWrites: true,
         allowBigInt: true,
         unsafeClient: 'skip',
-      },
-    },
-  });
+      })
+      .connect(jwk);
+  }
 
-  // console.log('contractU', contractU.contractTxId);
-  console.log('contractFactsToken', contractFactsToken.contractTxId);
-  console.log('contractFactMarket', contractFactMarket.contractTxId);
-
-  // Connect wallet to contracts
-  connectedWallet1U = warp
-    .contract(TEST_U_TX)
-    .setEvaluationOptions({
-      remoteStateSyncSource: `https://dre-1.warp.cc/contract`,
-      remoteStateSyncEnabled: true,
-      internalWrites: true,
-      allowBigInt: true,
-      unsafeClient: 'skip',
-    })
-    .connect(jwk);
-  connectedWallet1FactsToken = warp
-    .contract(contractFactsToken.contractTxId)
-    .setEvaluationOptions({
-      remoteStateSyncSource: `https://dre-1.warp.cc/contract`,
-      remoteStateSyncEnabled: true,
-      internalWrites: true,
-      allowBigInt: true,
-      unsafeClient: 'skip',
-    })
-    .connect(jwk);
   // connectedWallet1FactMarket = warp
   //   .contract(contractFactMarket.contractTxId)
   //   .setEvaluationOptions({
@@ -162,9 +168,9 @@ test.before(async () => {
  * 3. log state of U token in Facts Token
  */
 
-test('should get support price on fact market', async () => {
-  const getPriceOutput = await warp
-    .contract('cDKMaop1mEq6SDJFV_wfKZb-dRz3U_IZwtAmMND-TE0')
+test('should get price on fact market', async () => {
+  const output = await warp
+    .contract('GBYW1o8Nh4rrbw5WSueEjA44f9Re09Vki06E7X_mzAw')
     .setEvaluationOptions({
       remoteStateSyncSource: `https://dre-6.warp.cc/contract`,
       remoteStateSyncEnabled: true,
@@ -173,7 +179,26 @@ test('should get support price on fact market', async () => {
       unsafeClient: 'skip',
     })
     .viewState({ function: 'get-price', position: 'support', qty: '1' });
-  console.log(getPriceOutput);
+  assert.is(
+    output?.result?.factMarket,
+    'GBYW1o8Nh4rrbw5WSueEjA44f9Re09Vki06E7X_mzAw'
+  );
+});
+
+test('should get supply on fact market', async () => {
+  const output = await warp
+    .contract('GBYW1o8Nh4rrbw5WSueEjA44f9Re09Vki06E7X_mzAw')
+    .setEvaluationOptions({
+      remoteStateSyncSource: `https://dre-6.warp.cc/contract`,
+      remoteStateSyncEnabled: true,
+      internalWrites: true,
+      allowBigInt: true,
+      unsafeClient: 'skip',
+    })
+    .viewState({ function: 'get-supply' });
+
+  console.log(output);
+  assert.is(!output?.result?.total, false);
 });
 
 test.skip('should allow 105 sub units to the Facts Token contract', async () => {
