@@ -1,25 +1,27 @@
 import { balance } from './read/balance.js';
-import { buy } from './write/buy.js';
+import { buy } from './write/fact-market/buy.js';
+// import { sell } from './write/fact-market/sell.js';
 import { transfer } from './write/transfer.js';
 import { claim } from './write/claim.js';
 import { allow } from './write/allow.js';
 import { rejectClaimable } from './write/reject.js';
 
 export async function handle(state, action) {
-  // console.log('CHICKEN NUGGETS', action, state.u);
   // Only allow L2 transactions
   // if (SmartWeave.transaction.origin !== 'L2') {
   //   return { state };
   // }
 
   const env = {
-    // contracts: SmartWeave.contracts,
+    contract: SmartWeave.contract,
+    contracts: SmartWeave.contracts,
   };
 
   switch (action?.input?.function) {
-    // TODO: buy / sell should be factMarket.buy() / .sell()
-    case 'buy':
+    case 'fact-market-buy':
       return buy(env)(state, action);
+    // case 'fact-market-sell':
+    //   return sell(env)(state, action);
     case 'balance':
       return balance(state, action);
     case 'reject':
