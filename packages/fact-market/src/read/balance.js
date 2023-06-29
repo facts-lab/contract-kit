@@ -7,7 +7,7 @@ export async function balance(state, action) {
       balance: state.balances[addr] || 0,
       balances: {
         support: state.balances[addr] || 0,
-        oppose: state.oppositionBalances[addr] || 0,
+        oppose: state.oppose[addr] || 0,
       },
     },
   };

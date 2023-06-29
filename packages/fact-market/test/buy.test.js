@@ -19,7 +19,7 @@ test('should throw (position must be support or oppose.) if undefined', () => {
           creator: '',
           position: '',
           balances: {},
-          oppositionBalances: {},
+          oppose: {},
           pair: '',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -68,7 +68,7 @@ test('should throw (qty must be an integer greater than zero.) if undefined', as
           creator: '',
           position: '',
           balances: {},
-          oppositionBalances: {},
+          oppose: {},
           pair: '',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -94,7 +94,7 @@ test('should throw (qty must be an integer greater than zero.) if less than 0', 
           creator: '',
           position: '',
           balances: {},
-          oppositionBalances: {},
+          oppose: {},
           pair: '',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -121,7 +121,7 @@ test('should throw (qty must be an integer greater than zero.) if string', async
           creator: '',
           position: '',
           balances: {},
-          oppositionBalances: {},
+          oppose: {},
           pair: '',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -149,7 +149,7 @@ test('should throw (Incorrect price.)', async () => {
           balances: {
             '<jshaw>': 99,
           },
-          oppositionBalances: {},
+          oppose: {},
           pair: '',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -191,7 +191,7 @@ test('should throw (Incorrect fee.)', async () => {
           balances: {
             '<jshaw>': 99,
           },
-          oppositionBalances: {},
+          oppose: {},
           pair: '',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -232,7 +232,7 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
       balances: {
         '<jshaw>': 99,
       },
-      oppositionBalances: {},
+      oppose: {},
       pair,
       settings: [
         ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -271,7 +271,7 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
       creator: '',
       position: 'oppose',
       balances: {},
-      oppositionBalances: {
+      oppose: {
         '<jshaw>': 99,
       },
       pair,
@@ -296,7 +296,7 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
     }
   );
   const { state } = output;
-  assert.is(state.oppositionBalances[caller], 1);
+  assert.is(state.oppose[caller], 1);
 });
 
 test('should buy 2 support token for 200 base units with a fee of 10 base units', async () => {
@@ -314,7 +314,7 @@ test('should buy 2 support token for 200 base units with a fee of 10 base units'
       balances: {
         '<jshaw>': 99,
       },
-      oppositionBalances: {},
+      oppose: {},
       pair,
       settings: [
         ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],

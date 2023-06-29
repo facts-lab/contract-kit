@@ -23,7 +23,7 @@ test('should throw (Position must be support or oppose.)', () => {
             '<jshaw>': 99,
             '<justin>': 1,
           },
-          oppositionBalances: {},
+          oppose: {},
           pair: '<pair>',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -55,7 +55,7 @@ test('should throw (Please specify a qty.) if qty undefined', () => {
             '<jshaw>': 99,
             '<justin>': 1,
           },
-          oppositionBalances: {},
+          oppose: {},
           pair: '<pair>',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -87,7 +87,7 @@ test('should throw (Please specify a qty.) if qty less than 1', () => {
             '<jshaw>': 99,
             '<justin>': 1,
           },
-          oppositionBalances: {},
+          oppose: {},
           pair: '<pair>',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -119,7 +119,7 @@ test('should throw (Please specify a qty.) if qty a string of text', () => {
             '<jshaw>': 99,
             '<justin>': 1,
           },
-          oppositionBalances: {},
+          oppose: {},
           pair: '<pair>',
           settings: [
             ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -149,7 +149,7 @@ test('should work oppose', () => {
         '<jshaw>': 99,
         '<justin>': 1,
       },
-      oppositionBalances: {},
+      oppose: {},
       pair: '<pair>',
       settings: [
         ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -184,7 +184,7 @@ test('should work support', () => {
         '<jshaw>': 99,
         '<justin>': 1,
       },
-      oppositionBalances: {},
+      oppose: {},
       pair: '<pair>',
       settings: [
         ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],

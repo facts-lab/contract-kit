@@ -97,9 +97,7 @@ export function getCurrentSupply(balances) {
  * @return {object} balances
  */
 export const getBalances = ({ state, action }) =>
-  action.input.position === 'support'
-    ? state.balances
-    : state.oppositionBalances;
+  action.input.position === 'support' ? state.balances : state.oppose;
 
 /**
  * Calculates and returns the price and fee.
