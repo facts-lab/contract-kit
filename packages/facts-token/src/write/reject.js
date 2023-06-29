@@ -1,7 +1,5 @@
 import { Left, Right, fromNullable, of } from '../hyper-either.js';
 
-import { addClaimBalanceFrom } from '../util.js';
-
 /**
  * Rejects a claim, and sends tokens back to the from value of the claim.
  *
@@ -28,6 +26,13 @@ export function rejectClaimable(state, action) {
     );
 }
 
+/**
+ * Validates the reject input
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
 const validate = ({ state, action }) => {
   if (!action.input?.tx)
     return Left('tx must be passed to the reject function.');
@@ -39,4 +44,22 @@ const validate = ({ state, action }) => {
   )
     return Left('Claim not addressed to caller.');
   return Right({ state, action });
+};
+
+/**
+ * @description Adds the qty to the 'from' balance
+ *
+ * @author @jshaw-ar
+ * @param {*} state
+ * @param {*} action
+ * @return {number} indexToRemove
+ */
+export const addClaimBalanceFrom = ({ state, action }) => {
+  const indexToRemove = state.claimable.findIndex(
+    (claim) => claim.txID === action.input.tx
+  );
+  const claim = state.claimable[indexToRemove];
+  const balance = state.balances[claim.from] || 0;
+  state.balances[claim.from] = balance + claim.qty;
+  return indexToRemove;
 };
