@@ -1,10 +1,9 @@
-import { of as syncOf, fromNullable } from '../hyper-either.js';
+import { of, fromNullable, Left, Right } from '../hyper-either.js';
 import {
   POSITION_TYPES,
-  ce,
   roundDown,
-  isInteger,
   getPriceAndFee,
+  isValidQty,
 } from '../util.js';
 
 /**
@@ -20,17 +19,16 @@ export function buy({ contract }) {
    * This function should only be called by the FACTS contract as action.caller
    */
   return (state, action) => {
-    console.log('contract', contract);
-    console.log('action', action);
-    return syncOf({ state, action, contract })
-      .map(validate)
-      .map(validatePriceAndFee)
-      .map(({ type, price, fee }) =>
-        addBalance({ type, price, fee, state, action })
-      )
+    return of({ state, action, contract })
+      .chain(fromNullable)
+      .chain(validate)
+      .chain(validatePriceAndFee)
+      .map(({ price, fee }) => addBalance({ price, fee, state, action }))
       .fold(
-        (msg) => {
-          throw new ContractError(msg || 'An error occurred.');
+        (error) => {
+          throw new ContractError(
+            error?.message || error || 'An error occurred.'
+          );
         },
         () => ({ state })
       );
@@ -43,45 +41,17 @@ export function buy({ contract }) {
  * @author @jshaw-ar
  * @param {*} { state, action }
  */
-const validate = ({ state, action, contract }) =>
-  syncOf({ state, action })
-    .chain(fromNullable)
-    .chain(
-      ce(
-        !POSITION_TYPES.includes(action?.input?.position),
-        'position must be support or oppose.'
-      )
-    )
-    .chain(
-      ce(
-        !isInteger(roundDown(action?.input?.qty)),
-        'qty must be an integer greater than zero.'
-      )
-    )
-    .chain(
-      ce(
-        roundDown(action?.input?.qty) < 1,
-        'qty must be an integer greater than zero.'
-      )
-    )
-    .chain(
-      ce(
-        state.position !== action?.input?.owner?.position,
-        `owner position must be ${state.position}.`
-      )
-    )
-    .chain(
-      ce(
-        contract.owner !== action?.input?.owner?.addr,
-        `owner addr must be ${contract.owner}.`
-      )
-    )
-    .fold(
-      (msg) => {
-        throw new ContractError(msg || 'An error occurred.');
-      },
-      (output) => output
-    );
+const validate = ({ state, action, contract }) => {
+  if (!POSITION_TYPES.includes(action?.input?.position))
+    return Left('position must be support or oppose.');
+  if (!isValidQty(action?.input?.qty))
+    return Left('qty must be an integer greater than zero.');
+  if (state.position !== action?.input?.owner?.position)
+    return Left(`owner position must be ${state.position}.`);
+  if (contract.owner !== action?.input?.owner?.addr)
+    return Left(`owner addr must be ${contract.owner}.`);
+  return Right({ state, action });
+};
 
 /**
  * Calculates and returns the price and fee.
@@ -91,38 +61,28 @@ const validate = ({ state, action, contract }) =>
  * @return {*}
  */
 const validatePriceAndFee = ({ state, action }) => {
-  return syncOf({ state, action })
-    .map(getPriceAndFee)
-    .chain(({ price, fee }) =>
-      ce(price !== action.input.price, 'Incorrect price.')({ price, fee })
-    )
-    .chain(({ price, fee }) =>
-      ce(fee !== action.input.fee, 'Incorrect fee.')({ price, fee })
-    )
-    .fold(
-      (msg) => {
-        throw new ContractError(msg || 'An error occurred.');
-      },
-      (input) => input
-    );
+  const { price, fee } = getPriceAndFee({ state, action });
+  if (price !== action.input.price) return Left('Incorrect price.');
+  if (fee !== action.input.fee) return Left('Incorrect fee.');
+  return Right({ price, fee });
 };
 
 /**
- * Adds the support or opposition balance of the caller
+ * Add to the callers support or oppose balance
  *
  * @author @jshaw-ar
- * @param {*} { price, fee, state, action, write, type, transaction }
- * @return {*} { price, fee, state, action, write, type, transaction }
+ * @param {*} { price, fee, state, action }
+ * @return {*}
  */
-const addBalance = ({ type, price, fee, state, action }) => {
+const addBalance = ({ price, fee, state, action }) => {
   if (action.input.position === 'support') {
     state.balances[action.caller] = roundDown(
       (state.balances[action.caller] || 0) + action.input.qty
     );
   } else {
-    state.oppositionBalances[action.caller] = roundDown(
-      (state.oppositionBalances[action.caller] || 0) + action.input.qty
+    state.oppose[action.caller] = roundDown(
+      (state.oppose[action.caller] || 0) + action.input.qty
     );
   }
-  return { type, price, fee };
+  return { price, fee };
 };

@@ -1,6 +1,6 @@
-import { fromNullable, of } from '../hyper-either.js';
+import { Left, Right, fromNullable, of } from '../hyper-either.js';
 
-import { addClaimBalanceFrom, ce } from '../util.js';
+import { addClaimBalanceFrom } from '../util.js';
 
 /**
  * Rejects a claim, and sends tokens back to the from value of the claim.
@@ -14,20 +14,7 @@ import { addClaimBalanceFrom, ce } from '../util.js';
 export function rejectClaimable(state, action) {
   return of({ state, action })
     .chain(fromNullable)
-    .chain(ce(!action.input?.tx, 'txID must be passed to the reject function.'))
-    .chain(
-      ce(
-        state.claimable.filter((c) => c.txID === action.input.tx).length !== 1,
-        'There must be 1 claimable with this tx id.'
-      )
-    )
-    .chain(
-      ce(
-        state.claimable.filter((c) => c.txID === action.input.tx)[0]?.to !==
-          action.caller,
-        'Claim not addressed to caller.'
-      )
-    )
+    .chain(validate)
     .map(addClaimBalanceFrom)
     .map((indexToRemove) => {
       state.claimable.splice(indexToRemove, 1);
@@ -40,3 +27,16 @@ export function rejectClaimable(state, action) {
       (state) => ({ state })
     );
 }
+
+const validate = ({ state, action }) => {
+  if (!action.input?.tx)
+    return Left('tx must be passed to the reject function.');
+  if (state.claimable.filter((c) => c.txID === action.input.tx).length !== 1)
+    return Left('There must be 1 claimable with this tx id.');
+  if (
+    state.claimable.filter((c) => c.txID === action.input.tx)[0]?.to !==
+    action.caller
+  )
+    return Left('Claim not addressed to caller.');
+  return Right({ state, action });
+};

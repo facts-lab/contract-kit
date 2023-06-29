@@ -1,6 +1,4 @@
-import Async from 'hyper-async';
-const { fromPromise } = Async;
-import { of as syncOf, fromNullable } from '../hyper-either.js';
+import { of, fromNullable, Left, Right } from '../hyper-either.js';
 import {
   POSITION_TYPES,
   calculatePrice,
@@ -9,7 +7,7 @@ import {
   getCurrentSupply,
   roundUp,
   roundDown,
-  isInteger,
+  isValidQty,
 } from '../util.js';
 
 /**
@@ -20,20 +18,14 @@ import {
  * @param {*} { contracts }
  * @return {*}
  */
-export function sell({ contracts }) {
-  return async (state, action) => {
-    return Async.of({ state, action })
-      .map(validate)
+export function sell({}) {
+  return (state, action) => {
+    return of({ state, action })
+      .chain(fromNullable)
+      .chain(validate)
       .map(calcualateSellAmount)
-      .chain((amount) =>
-        fromPromise(contracts.write)(state.pair, {
-          function: 'transfer',
-          target: action.caller,
-          qty: amount,
-        })
-      )
       .map(({ type }) => subtractBalance({ state, action, type }))
-      .fork(
+      .fold(
         (msg) => {
           throw new ContractError(msg || 'An error occurred.');
         },
@@ -50,32 +42,11 @@ export function sell({ contracts }) {
  * @return {*} { state, action }
  */
 const validate = ({ state, action }) => {
-  return syncOf({ state, action })
-    .chain(fromNullable)
-    .chain(
-      ce(
-        !POSITION_TYPES.includes(action?.input?.position),
-        'position must be support or oppose.'
-      )
-    )
-    .chain(
-      ce(
-        !isInteger(roundDown(action?.input?.qty)),
-        'qty must be an integer greater than zero.'
-      )
-    )
-    .chain(
-      ce(
-        roundDown(action?.input?.qty) < 1,
-        'qty must be an integer greater than zero.'
-      )
-    )
-    .fold(
-      (msg) => {
-        throw new ContractError(msg || 'An error occurred.');
-      },
-      () => ({ state, action })
-    );
+  if (!POSITION_TYPES.includes(action?.input?.position))
+    return Left('position must be support or oppose.');
+  if (!isValidQty(action?.input?.qty))
+    return Left('qty must be an integer greater than zero.');
+  return Right({ state, action });
 };
 
 /**
@@ -88,7 +59,7 @@ const validate = ({ state, action }) => {
 const calcualateSellAmount = ({ state, action }) => {
   const balances = getBalances({ state, action });
   // Make the "expected" amount an optional param
-  return syncOf(balances)
+  return of(balances)
     .chain((balances) =>
       ce(
         (balances[action?.caller] || 0) < roundDown(action?.input?.qty),
@@ -109,7 +80,7 @@ const calcualateSellAmount = ({ state, action }) => {
 };
 
 /**
- * Calculates the price of the sell integral.
+ * Calculates the price of the sell.
  *
  * @author @jshaw-ar
  * @param {*} supply
@@ -122,14 +93,14 @@ const calculateSell = (supply, qty) =>
  * Subtracts the support or opposition balance of the caller.
  *
  * @author @jshaw-ar
- * @param {*} { state, action, type }
+ * @param {*} { state, action }
  */
-const subtractBalance = ({ state, action, type }) => {
+const subtractBalance = ({ state, action }) => {
   if (action.input.position === 'support') {
     state.balances[action.caller] =
       state.balances[action.caller] - action.input.qty;
   } else {
-    state.oppositionBalances[action.caller] =
-      state.oppositionBalances[action.caller] - action.input.qty;
+    state.oppose[action.caller] =
+      state.oppose[action.caller] - action.input.qty;
   }
 };

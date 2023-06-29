@@ -1,5 +1,5 @@
 import { fromNullable, of } from '../hyper-either.js';
-import { ce, isInteger, roundDown } from '../util.js';
+import { roundDown } from '../util.js';
 
 /**
  * @description Transfers U tokens to another address.
@@ -13,27 +13,13 @@ import { ce, isInteger, roundDown } from '../util.js';
 export function transfer(state, action) {
   return of({ state, action })
     .chain(fromNullable)
-    .chain(ce(!action.input?.target, 'Please specify a target.'))
-    .chain(
-      ce(action.input?.target === action.caller, 'Target cannot be caller.')
-    )
-    .chain(ce(!isInteger(action.input?.qty), 'qty must be an integer.'))
-    .chain(
-      ce(
-        roundDown(action.input?.qty) < 1,
-        'Invalid token transfer. qty must be an integer greater than 0.'
-      )
-    )
-    .chain(
-      ce(
-        (state.balances[action.caller] || 0) < roundDown(action.input?.qty),
-        'Not enough tokens for transfer.'
-      )
-    )
+    .chain(validateTransfer)
     .map(updateBalances)
     .fold(
       (error) => {
-        throw new ContractError(error || 'An error occurred.');
+        throw new ContractError(
+          error?.message || error || 'An error occurred.'
+        );
       },
       () => ({ state })
     );
