@@ -21,9 +21,14 @@ export function setupSmartWeaveEnv({
     transaction: {
       reward: reward || 1,
       id: id || '<test-tx>',
+      owner: '<test-owner>',
     },
     block: {
       height: height || 1,
+    },
+    contract: {
+      id: '<contract-id-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+      owner: '<owner-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
     },
     contracts: {
       readContractState: async (contract) => readContractState,
@@ -56,6 +61,7 @@ export function setupSmartWeaveEnv({
     contracts: SmartWeave.contracts,
     block: SmartWeave.block,
     transaction: SmartWeave.transaction,
+    contract: SmartWeave.contract,
     registered: () => registered,
     rejected: () => rejected,
     claimed: () => claimed,

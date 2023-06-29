@@ -20,6 +20,11 @@ export function setupSmartWeaveEnv(
     block: {
       height: height || 1,
     },
+    // Make these 43 chars for validation
+    contract: {
+      id: '<contract-id-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+      owner: '<owner-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+    },
     contracts: {
       readContractState: async (contract) => readContractState,
       write: async () => Promise.resolve(write),
@@ -36,11 +41,7 @@ export function setupSmartWeaveEnv(
   globalThis.ContractError = ContractError;
   return {
     kv: SmartWeave.kv,
-    readContractState: async (contract) =>
-      SmartWeave.contracts.readContractState(contract),
-    viewContractState: async (contract, input) =>
-      SmartWeave.contracts.viewContractState(contract, input),
-    write: SmartWeave.contracts.write.bind(globalThis.SmartWeave),
+    contracts: SmartWeave.contracts,
     block: SmartWeave.block,
     transaction: SmartWeave.transaction,
   };

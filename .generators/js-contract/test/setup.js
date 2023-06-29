@@ -25,6 +25,11 @@ export function setupSmartWeaveEnv({
     block: {
       height: height || 1,
     },
+    // Make these 43 chars for validation
+    contract: {
+      id: '<contract-id-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+      owner: '<owner-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+    },
     contracts: {
       readContractState: async (contract) => readContractState,
       write: async (pair, input) => {

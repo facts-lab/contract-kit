@@ -39,3 +39,8 @@ testem.log
 Thumbs.db
 **/*/out*
 **/*/docs
+
+# extra
+logs
+**/*/logs
+cache/
