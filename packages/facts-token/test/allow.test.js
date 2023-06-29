@@ -12,7 +12,7 @@
 
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -37,7 +37,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -61,7 +61,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -85,7 +85,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -112,7 +112,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -139,7 +139,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -166,7 +166,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -193,7 +193,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -220,7 +220,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -246,7 +246,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -273,7 +273,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -300,7 +300,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -327,7 +327,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -345,7 +345,7 @@
 //         },
 //         { caller, input: { qty: -1, target: '<tom>' } }
 //       ),
-//     /Invalid token transfer. qty must be an integer greater than 0./
+//     /qty must be an integer greater than zero./
 //   );
 // });
 
@@ -354,7 +354,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -372,7 +372,7 @@
 //         },
 //         { caller, input: { qty: 0, target: '<tom>' } }
 //       ),
-//     /Invalid token transfer. qty must be an integer greater than 0./
+//     /qty must be an integer greater than zero./
 //   );
 // });
 
@@ -381,7 +381,7 @@
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -417,7 +417,7 @@
 
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -453,7 +453,7 @@
 //   );
 //   assert.throws(
 //     () =>
-//       allow(
+//       allow(env)(
 //         {
 //           name: 'Facts Token',
 //           ticker: 'FACTS',
@@ -482,7 +482,7 @@
 //     undefined
 //   );
 //   const caller = '<justin>';
-//   const output = await allow(
+//   const output = await allow(env)(
 //     {
 //       name: 'Facts Token',
 //       ticker: 'FACTS',
@@ -516,7 +516,7 @@
 //     undefined,
 //     undefined
 //   );
-//   const output = await allow(
+//   const output = await allow(env)(
 //     {
 //       name: 'Facts Token',
 //       ticker: 'FACTS',

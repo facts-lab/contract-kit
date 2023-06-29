@@ -8,7 +8,7 @@
 //   setupSmartWeaveEnv();
 // });
 
-// test('should throw txID must be passed to the reject function.', () => {
+// test('should throw tx must be passed to the reject function.', () => {
 //   const caller = '<justin>';
 //   assert.throws(
 //     () =>
@@ -37,7 +37,7 @@
 //         },
 //         { caller, input: { function: 'reject' } }
 //       ),
-//     /txID must be passed to the reject function./
+//     /tx must be passed to the reject function./
 //   );
 // });
 

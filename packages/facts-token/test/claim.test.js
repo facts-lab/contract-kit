@@ -165,7 +165,7 @@
 //         },
 //         { caller, input: { txID: '<test-claim>' } }
 //       ),
-//     /A qty must be specified./
+//     /qty is required./
 //   );
 // });
 
@@ -195,7 +195,7 @@
 //         },
 //         { caller, input: { txID: '<test-claim>', qty: null } }
 //       ),
-//     /A qty must be specified./
+//     /qty is required./
 //   );
 // });
 

@@ -376,7 +376,7 @@
 //         },
 //         { caller, input: { qty: 0, target: '<tom>' } }
 //       ),
-//     /Invalid token transfer. qty must be an integer greater than 0./
+//     /qty must be an integer greater than zero./
 //   );
 // });
 
@@ -401,7 +401,7 @@
 //         },
 //         { caller, input: { qty: -1, target: '<tom>' } }
 //       ),
-//     /Invalid token transfer. qty must be an integer greater than 0./
+//     /qty must be an integer greater than zero./
 //   );
 // });
 
