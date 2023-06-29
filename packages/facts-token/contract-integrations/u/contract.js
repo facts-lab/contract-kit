@@ -1752,7 +1752,7 @@ function transfer(state, action) {
     .chain(
       ce(
         roundDown(action.input?.qty) < 1,
-        'Invalid token transfer. qty must be an integer greater than 0.'
+        'qty must be an integer greater than zero.'
       )
     )
     .chain(
@@ -1783,7 +1783,7 @@ function claim(state, action) {
     .chain(
       ce(!action.input?.txID, 'txID must be passed to the claim function.')
     )
-    .chain(ce(!action.input?.qty, 'A qty must be specified.'))
+    .chain(ce(!action.input?.qty, 'qty is required.'))
     .chain(
       ce(
         state.claimable.filter((c) => c.txID === action.input.txID).length !==
@@ -1832,7 +1832,7 @@ function allow(state, action) {
     .chain(
       ce(
         roundDown(action.input?.qty) < 1,
-        'Invalid token transfer. qty must be an integer greater than 0.'
+        'qty must be an integer greater than zero.'
       )
     )
     .chain(
