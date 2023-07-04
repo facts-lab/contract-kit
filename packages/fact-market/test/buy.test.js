@@ -6,219 +6,215 @@ import { setupSmartWeaveEnv } from './setup.js';
 
 const test = suite('buy');
 
-test('should throw (position must be support or oppose.) if undefined', () => {
+test('should throw (position must be support or oppose.) if undefined', async () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
-  assert.throws(
-    () =>
-      buy(env)(
-        {
-          ticker: 'FACTMKT',
-          title: '',
-          registry: '',
-          creator: '',
-          position: '',
-          balances: {},
-          oppose: {},
-          pair: '',
-          settings: [
-            ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
-            ['isTradeable', true],
-          ],
-        },
-        { caller, input: {} }
-      ),
-    /position must be support or oppose./
-  );
+
+  try {
+    await buy(env)(
+      {
+        ticker: 'FACTMKT',
+        name: '',
+        balances: {},
+        settings: [
+          ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+          ['isTradeable', true],
+        ],
+      },
+      { caller, input: {} }
+    );
+    assert.unreachable();
+  } catch (e) {
+    assert.is(e.message, 'position must be support or oppose.');
+  }
 });
 
-test('should throw (position must be support or oppose.) if wrong', () => {
+test('should throw (position must be support or oppose.) if wrong', async () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  assert.throws(
-    () =>
-      buy(env)(
-        {
-          ticker: 'FACTMKT',
-          name: '',
-          balances: {},
-          settings: [
-            ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
-            ['isTradeable', true],
-          ],
-        },
-        { caller, input: { position: 'suppor' } }
-      ),
-    /position must be support or oppose./
-  );
+  try {
+    await buy(env)(
+      {
+        ticker: 'FACTMKT',
+        name: '',
+        balances: {},
+        settings: [
+          ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+          ['isTradeable', true],
+        ],
+      },
+      { caller, input: { position: 'suppor' } }
+    );
+    assert.unreachable();
+  } catch (e) {
+    assert.is(e.message, 'position must be support or oppose.');
+  }
 });
 
 test('should throw (qty must be an integer greater than zero.) if undefined', async () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
-
-  assert.throws(
-    () =>
-      buy(env)(
-        {
-          ticker: 'FACTMKT',
-          title: '',
-          registry: '',
-          creator: '',
-          position: '',
-          balances: {},
-          oppose: {},
-          pair: '',
-          settings: [
-            ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
-            ['isTradeable', true],
-          ],
-        },
-        { caller, input: { position: 'support' } }
-      ),
-    /qty must be an integer greater than zero./
-  );
+  try {
+    await buy(env)(
+      {
+        ticker: 'FACTMKT',
+        title: '',
+        registry: '',
+        creator: '',
+        position: '',
+        balances: {},
+        oppose: {},
+        pair: '',
+        settings: [
+          ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+          ['isTradeable', true],
+        ],
+      },
+      { caller, input: { position: 'support' } }
+    );
+    assert.unreachable();
+  } catch (e) {
+    assert.is(e.message, 'qty must be an integer greater than zero.');
+  }
 });
 
 test('should throw (qty must be an integer greater than zero.) if less than 0', async () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
-  assert.throws(
-    () =>
-      buy(env)(
-        {
-          ticker: 'FACTMKT',
-          title: '',
-          registry: '',
-          creator: '',
-          position: '',
-          balances: {},
-          oppose: {},
-          pair: '',
-          settings: [
-            ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
-            ['isTradeable', true],
-          ],
-        },
-        { caller, input: { position: 'support', qty: 0.1 } }
-      ),
-    /qty must be an integer greater than zero./
-  );
+  try {
+    await buy(env)(
+      {
+        ticker: 'FACTMKT',
+        title: '',
+        registry: '',
+        creator: '',
+        position: '',
+        balances: {},
+        oppose: {},
+        pair: '',
+        settings: [
+          ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+          ['isTradeable', true],
+        ],
+      },
+      { caller, input: { position: 'support', qty: 0.1 } }
+    );
+    assert.unreachable();
+  } catch (e) {
+    assert.is(e.message, 'qty must be an integer greater than zero.');
+  }
 });
 
 test('should throw (qty must be an integer greater than zero.) if string', async () => {
   const env = setupSmartWeaveEnv({});
   const caller = '<justin>';
 
-  assert.throws(
-    () =>
-      buy(env)(
-        {
-          ticker: 'FACTMKT',
-          title: '',
-          registry: '',
-          creator: '',
-          position: '',
-          balances: {},
-          oppose: {},
-          pair: '',
-          settings: [
-            ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
-            ['isTradeable', true],
-          ],
-        },
-        { caller, input: { position: 'support', qty: '0.1' } }
-      ),
-    /qty must be an integer greater than zero./
-  );
+  try {
+    await buy(env)(
+      {
+        ticker: 'FACTMKT',
+        title: '',
+        registry: '',
+        creator: '',
+        position: '',
+        balances: {},
+        oppose: {},
+        pair: '',
+        settings: [
+          ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+          ['isTradeable', true],
+        ],
+      },
+      { caller, input: { position: 'support', qty: '0.1' } }
+    );
+    assert.unreachable();
+  } catch (e) {
+    assert.is(e.message, 'qty must be an integer greater than zero.');
+  }
 });
 
 test('should throw (Incorrect price.)', async () => {
-  const env = setupSmartWeaveEnv({});
-  const caller = '<justin>';
-  assert.throws(
-    () =>
-      buy(env)(
+  const env = setupSmartWeaveEnv({
+    write: true,
+    readContractState: {
+      ticker: 'TU',
+      name: 'TU',
+      settings: [['isTradeable', true]],
+      claimable: [
         {
-          ticker: 'FACTMKT',
-          title: '',
-          registry: '',
-          creator: '',
-          position: 'support',
-          balances: {
-            '<jshaw>': 99,
-          },
-          oppose: {},
-          pair: '',
-          settings: [
-            ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
-            ['isTradeable', true],
-          ],
+          txID: '<tx>',
+          to: '<contract-id-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+          from: '<justin>',
+          qty: 210,
         },
-        {
-          caller,
-          input: {
-            position: 'support',
-            qty: 1,
-            price: 99,
-            fee: 5,
-            tx: '<tx>',
-            owner: {
-              addr: '<owner-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
-              position: 'oppose',
-            },
-          },
-        }
-      ),
-    /owner position must be support./
-  );
-});
-
-test('should throw (Incorrect fee.)', async () => {
-  const env = setupSmartWeaveEnv({});
+      ],
+      balances: {
+        '9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4': 100000000,
+      },
+      divisibility: 1e6,
+    },
+  });
   const caller = '<justin>';
+  const tx = '<tx>';
 
-  assert.throws(
-    () =>
-      buy(env)(
-        {
-          ticker: 'FACTMKT',
-          title: '',
-          registry: '',
-          creator: '',
-          position: 'support',
-          balances: {
-            '<jshaw>': 99,
-          },
-          oppose: {},
-          pair: '',
-          settings: [
-            ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
-            ['isTradeable', true],
-          ],
+  try {
+    await buy(env)(
+      {
+        ticker: 'FACTMKT',
+        title: '',
+        registry: '',
+        creator: '',
+        position: 'support',
+        balances: {
+          '<jshaw>': 99,
         },
-        {
-          caller,
-          input: {
-            owner: {
-              addr: '<owner-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
-              position: 'support',
-            },
-            position: 'support',
-            qty: 1,
-            price: 100,
-            fee: 4,
-            tx: '<tx>',
-          },
-        }
-      ),
-    /Incorrect fee./
-  );
+        oppose: {},
+        pair: '',
+        settings: [
+          ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
+          ['isTradeable', true],
+        ],
+      },
+      {
+        caller,
+        input: {
+          position: 'support',
+          qty: 2,
+          price: 199,
+          fee: 11,
+          tx,
+        },
+      }
+    );
+    assert.unreachable();
+  } catch (e) {
+    console.log('Error!', e.message);
+    assert.is(e.message, 'Incorrect price.');
+  }
 });
 
 test('should buy 1 support token for 100 base units with a fee of 5 base units', async () => {
-  const env = setupSmartWeaveEnv({ write: true });
+  const env = setupSmartWeaveEnv({
+    write: true,
+    readContractState: {
+      ticker: 'TU',
+      name: 'TU',
+      settings: [['isTradeable', true]],
+      claimable: [
+        {
+          txID: '<tx>',
+          to: '<contract-id-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+          from: '<justin>',
+          qty: 2,
+        },
+      ],
+      balances: {
+        '9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4': 100000000,
+      },
+      divisibility: 1e6,
+    },
+  });
   const caller = '<justin>';
   const tx = '<tx>';
   const pair = '<pair>';
@@ -229,9 +225,7 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
       registry: '',
       creator: '',
       position: 'support',
-      balances: {
-        '<jshaw>': 99,
-      },
+      balances: {},
       oppose: {},
       pair,
       settings: [
@@ -244,13 +238,9 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
       input: {
         position: 'support',
         qty: 1,
-        price: 100,
-        fee: 5,
+        price: 1,
+        fee: 1,
         tx,
-        owner: {
-          addr: '<owner-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
-          position: 'support',
-        },
       },
     }
   );
@@ -258,8 +248,27 @@ test('should buy 1 support token for 100 base units with a fee of 5 base units',
   assert.is(state.balances[caller], 1);
 });
 
-test('should buy 1 oppose token for 100 base units with a fee of 5 base units', async () => {
-  const env = setupSmartWeaveEnv({ write: true });
+test('should buy 1 oppose token for 1 base units with a fee of 1 base units', async () => {
+  const env = setupSmartWeaveEnv({
+    write: true,
+    readContractState: {
+      ticker: 'TU',
+      name: 'TU',
+      settings: [['isTradeable', true]],
+      claimable: [
+        {
+          txID: '<tx>',
+          to: '<contract-id-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+          from: '<justin>',
+          qty: 2,
+        },
+      ],
+      balances: {
+        '9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4': 100000000,
+      },
+      divisibility: 1e6,
+    },
+  });
   const caller = '<justin>';
   const tx = '<tx>';
   const pair = '<pair>';
@@ -271,9 +280,7 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
       creator: '',
       position: 'oppose',
       balances: {},
-      oppose: {
-        '<jshaw>': 99,
-      },
+      oppose: {},
       pair,
       settings: [
         ['communityLogo', 'dAsWVqq_lFqeVsc7Z7HvfZNh-kQBQAIcOpsDz6NBM80'],
@@ -289,8 +296,8 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
         },
         position: 'oppose',
         qty: 1,
-        price: 100,
-        fee: 5,
+        price: 1,
+        fee: 1,
         tx,
       },
     }
@@ -300,7 +307,26 @@ test('should buy 1 oppose token for 100 base units with a fee of 5 base units', 
 });
 
 test('should buy 2 support token for 200 base units with a fee of 10 base units', async () => {
-  const env = setupSmartWeaveEnv({ write: true });
+  const env = setupSmartWeaveEnv({
+    write: true,
+    readContractState: {
+      ticker: 'TU',
+      name: 'TU',
+      settings: [['isTradeable', true]],
+      claimable: [
+        {
+          txID: '<tx>',
+          to: '<contract-id-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
+          from: '<justin>',
+          qty: 210,
+        },
+      ],
+      balances: {
+        '9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4': 100000000,
+      },
+      divisibility: 1e6,
+    },
+  });
   const caller = '<justin>';
   const tx = '<tx>';
   const pair = '<pair>';
@@ -324,10 +350,6 @@ test('should buy 2 support token for 200 base units with a fee of 10 base units'
     {
       caller,
       input: {
-        owner: {
-          addr: '<owner-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>',
-          position: 'support',
-        },
         position: 'support',
         qty: 2,
         price: 200,
