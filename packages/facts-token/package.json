@@ -6,7 +6,7 @@
   "main": "contract.js",
   "scripts": {
     "test": "npm run build && uvu test",
-    "build": "rm -r dist; node ./scripts/build.js && cp initial-state.json dist/initial-state.json",
+    "build": "(cd ../fact-market && npm run build) && rm -r dist; node ./scripts/build.js && cp initial-state.json dist/initial-state.json",
     "deploy": "npm run build && NODE_NO_WARNINGS=1 node ./scripts/deploy-contract-prod.mjs ./dist"
   },
   "keywords": [],
