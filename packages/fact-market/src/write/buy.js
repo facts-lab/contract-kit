@@ -1,4 +1,5 @@
-import { of, fromNullable, Left, Right } from '../hyper-either.js';
+import Async from 'hyper-async';
+const { fromPromise, Rejected, Resolved } = Async;
 import {
   POSITION_TYPES,
   roundDown,
@@ -14,21 +15,32 @@ import {
  * @param {*} { write, transaction }
  * @return {*}
  */
-export function buy({ contract }) {
+export function buy({ contract, contracts }) {
   /**
    * This function should only be called by the FACTS contract as action.caller
    */
   return (state, action) => {
-    return of({ state, action, contract })
-      .chain(fromNullable)
+    return Async.of({ state, action, contract })
       .chain(validate)
+      .chain(({ state }) =>
+        fromPromise(contracts.readContractState)(state.pair)
+      )
+      .chain((u_state) =>
+        validateTransfer({
+          state,
+          action,
+          claimable: u_state.claimable,
+          contract,
+        })
+      )
       .chain(validatePriceAndFee)
       .map(({ price, fee }) => addBalance({ price, fee, state, action }))
-      .fold(
-        (error) => {
-          throw new ContractError(
-            error?.message || error || 'An error occurred.'
-          );
+      .chain(() => fromPromise(register)({ state, action, contracts }))
+      .chain(() => fromPromise(claimU)({ state, action, contracts }))
+      .fork(
+        (err) => {
+          console.log('Error!', err);
+          throw new ContractError(err?.message || err || 'An error occurred.');
         },
         () => ({ state })
       );
@@ -41,16 +53,30 @@ export function buy({ contract }) {
  * @author @jshaw-ar
  * @param {*} { state, action }
  */
-const validate = ({ state, action, contract }) => {
+const validate = ({ state, action }) => {
   if (!POSITION_TYPES.includes(action?.input?.position))
-    return Left('position must be support or oppose.');
+    return Rejected('position must be support or oppose.');
   if (!isValidQty(action?.input?.qty))
-    return Left('qty must be an integer greater than zero.');
-  if (state.position !== action?.input?.owner?.position)
-    return Left(`owner position must be ${state.position}.`);
-  if (contract.owner !== action?.input?.owner?.addr)
-    return Left(`owner addr must be ${contract.owner}.`);
-  return Right({ state, action });
+    return Rejected('qty must be an integer greater than zero.');
+  return Resolved({ state, action });
+};
+
+/**
+ * Check if the claim is valid
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action, claimable }
+ * @return {*}
+ */
+const validateTransfer = ({ state, action, claimable, contract }) => {
+  const qty = action?.input?.price + action?.input?.fee;
+  const tx = action?.input?.tx;
+  const claim = claimable?.filter((c) => c.txID === tx)[0];
+  if (qty !== claim?.qty) return Rejected('transfer qty invalid.');
+  if (tx !== claim.txID) return Rejected('transfer txID invalid.');
+  if (action.caller !== claim.from) return Rejected('transfer from invalid');
+  if (contract.id !== claim.to) return Rejected('transfer to invalid');
+  return Resolved({ state, action });
 };
 
 /**
@@ -62,9 +88,9 @@ const validate = ({ state, action, contract }) => {
  */
 const validatePriceAndFee = ({ state, action }) => {
   const { price, fee } = getPriceAndFee({ state, action });
-  if (price !== action.input.price) return Left('Incorrect price.');
-  if (fee !== action.input.fee) return Left('Incorrect fee.');
-  return Right({ price, fee });
+  if (price !== action.input.price) return Rejected('Incorrect price.');
+  if (fee !== action.input.fee) return Rejected('Incorrect fee.');
+  return Resolved({ price, fee });
 };
 
 /**
@@ -74,15 +100,58 @@ const validatePriceAndFee = ({ state, action }) => {
  * @param {*} { price, fee, state, action }
  * @return {*}
  */
-const addBalance = ({ price, fee, state, action }) => {
+const addBalance = ({ state, action }) => {
   if (action.input.position === 'support') {
+    state.creator_cut =
+      (state.creator_cut || 0) + roundDown(action?.input?.fee);
     state.balances[action.caller] = roundDown(
       (state.balances[action.caller] || 0) + action.input.qty
     );
   } else {
+    state.burn = (state.burn || 0) + roundDown(action?.input?.fee);
     state.oppose[action.caller] = roundDown(
       (state.oppose[action.caller] || 0) + action.input.qty
     );
   }
-  return { price, fee };
 };
+
+/**
+ * Rejects a U transfer
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+async function register({ state, action, contracts }) {
+  if (state.register) {
+    const result = await contracts.write('<FACTS_CONTRACT_ID>', {
+      function: 'register',
+      position: action?.input,
+    });
+    if (result.type !== 'ok') {
+      throw new ContractError(
+        'There was an error registering with the Facts contract.'
+      );
+    }
+  }
+}
+
+/**
+ * Claims a U transfer
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+async function claimU({ state, action, contracts }) {
+  const result = await contracts.write(state.pair, {
+    function: 'claim',
+    txID: action?.input?.tx,
+    qty: action?.input?.price + action?.input?.fee,
+  });
+
+  // This only exists if the tx is successful
+  if (result.type !== 'ok') {
+    throw new ContractError('There was an error claiming U.');
+  }
+}
