@@ -1,10 +1,12 @@
 {
   "ticker": "T-FACTMKT",
-  "title": "",
-  "creator": "",
-  "position": "",
+  "title": "test title",
+  "creator": "test creator",
+  "position": "support",
   "creator_cut": 0,
+  "burn": 0,
   "balances": {},
   "oppose": {},
-  "pair": ""
+  "pair": "",
+  "register": true
 }
