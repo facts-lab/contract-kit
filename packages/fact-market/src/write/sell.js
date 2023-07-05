@@ -20,7 +20,7 @@ import {
  * @param {*} { contracts }
  * @return {*}
  */
-export function sell({ contracts }) {
+export function sell({ contracts, contract }) {
   return async (state, action) => {
     return Async.of({ state, action })
       .chain(validate)
@@ -28,10 +28,13 @@ export function sell({ contracts }) {
       .chain((amount) =>
         fromPromise(transferU)({ state, action, amount, contracts })
       )
+      .chain(() => fromPromise(distribute)({ state, contracts, contract }))
       .map(() => subtractBalance({ state, action }))
       .fork(
-        (err) => {
-          throw new ContractError(err?.message || err || 'An error occurred.');
+        (error) => {
+          throw new ContractError(
+            error?.message || error || 'An error occurred.'
+          );
         },
         () => ({ state })
       );
@@ -143,5 +146,30 @@ async function transferU({ state, action, amount, contracts }) {
   // This only exists if the tx is successful
   if (result.type !== 'ok') {
     throw new ContractError('There was an error transferring U.');
+  }
+}
+
+/**
+ * Transfers U
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+async function distribute({ state, contracts, contract }) {
+  if (state.creator_cut > 0) {
+    const result = await contracts.write(state.pair, {
+      function: 'transfer',
+      target: contract.owner,
+      qty: state.creator_cut,
+    });
+
+    // This only exists if the tx is successful
+    if (result.type !== 'ok') {
+      throw new ContractError(
+        'There was an error transferring U to the creator.'
+      );
+    }
+    state.creator_cut = 0;
   }
 }
