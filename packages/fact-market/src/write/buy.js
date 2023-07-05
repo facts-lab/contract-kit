@@ -16,11 +16,8 @@ import {
  * @return {*}
  */
 export function buy({ contract, contracts }) {
-  /**
-   * This function should only be called by the FACTS contract as action.caller
-   */
-  return (state, action) => {
-    return Async.of({ state, action, contract })
+  return (state, action) =>
+    Async.of({ state, action, contract })
       .chain(validate)
       .chain(({ state }) =>
         fromPromise(contracts.readContractState)(state.pair)
@@ -44,7 +41,6 @@ export function buy({ contract, contracts }) {
         },
         () => ({ state })
       );
-  };
 }
 
 /**
