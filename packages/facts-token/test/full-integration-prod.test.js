@@ -36,6 +36,8 @@
 // let contractFactMarket;
 
 // const TEST_U_TX = 'FYJOKdtNKl18QgblxgLEZUfJMFUv6tZTQqGTtY-D6jQ';
+// const TEST_FACTS_TX = '5rIZkU4XSHV5yGqFdWznFedztgxhBb51YlZelXeyFAg';
+// const TEST_MARKETPLACE_TX = 'QzqLKlswebY0u6wpvG8bwe0_xuZfNig1EVLMIPbEVSc';
 // const test = suite('full-integration-prod');
 // const DEPLOY_CONTRACTS = process.env.DEPLOY_CONTRACTS;
 // test.before(async () => {
@@ -85,33 +87,31 @@
 //     //   src: contractSrcU,
 //     // });
 
-//     contractFactsToken = await warp.deploy({
-//       wallet: new ArweaveSigner(jwk),
-//       initState: JSON.stringify({
-//         ...initialStateFactsToken,
-//         u: TEST_U_TX,
-//       }),
-//       src: contractSrcFactsToken,
-//       evaluationManifest: {
-//         evaluationOptions: {
-//           sourceType: SourceType.BOTH,
-//           internalWrites: true,
-//           allowBigInt: true,
-//           unsafeClient: 'skip',
-//         },
-//       },
-//     });
+//     // contractFactsToken = await warp.deploy({
+//     //   wallet: new ArweaveSigner(jwk),
+//     //   initState: JSON.stringify({
+//     //     ...initialStateFactsToken,
+//     //     u: TEST_U_TX,
+//     //   }),
+//     //   src: contractSrcFactsToken,
+//     //   evaluationManifest: {
+//     //     evaluationOptions: {
+//     //       sourceType: SourceType.BOTH,
+//     //       internalWrites: true,
+//     //       allowBigInt: true,
+//     //       unsafeClient: 'skip',
+//     //     },
+//     //   },
+//     // });
 
 //     contractFactMarket = await warp.deploy({
 //       wallet: new ArweaveSigner(jwk),
 //       initState: JSON.stringify({
 //         ...initialStateFactMarket,
+//         pair: TEST_U_TX,
 //         position: 'support',
 //       }),
-//       src: contractSrcFactMarket.replace(
-//         '<FACTS_CONTRACT_ID>',
-//         contractFactsToken.contractTxId
-//       ),
+//       src: contractSrcFactMarket.replace('<FACTS_CONTRACT_ID>', TEST_FACTS_TX),
 //       evaluationManifest: {
 //         evaluationOptions: {
 //           sourceType: SourceType.BOTH,
@@ -123,14 +123,14 @@
 //     });
 
 //     // console.log('contractU', contractU.contractTxId);
-//     console.log('contractFactsToken', contractFactsToken.contractTxId);
+//     // console.log('contractFactsToken', contractFactsToken.contractTxId);
 //     console.log('contractFactMarket', contractFactMarket.contractTxId);
 
 //     // Connect wallet to contracts
 //     connectedWallet1U = warp
 //       .contract(TEST_U_TX)
 //       .setEvaluationOptions({
-//         remoteStateSyncSource: `https://dre-1.warp.cc/contract`,
+//         remoteStateSyncSource: `https://dre-5.warp.cc/contract`,
 //         remoteStateSyncEnabled: true,
 //         internalWrites: true,
 //         allowBigInt: true,
@@ -138,9 +138,9 @@
 //       })
 //       .connect(jwk);
 //     connectedWallet1FactsToken = warp
-//       .contract(contractFactsToken.contractTxId)
+//       .contract(TEST_FACTS_TX)
 //       .setEvaluationOptions({
-//         remoteStateSyncSource: `https://dre-1.warp.cc/contract`,
+//         remoteStateSyncSource: `https://dre-5.warp.cc/contract`,
 //         remoteStateSyncEnabled: true,
 //         internalWrites: true,
 //         allowBigInt: true,
@@ -149,14 +149,16 @@
 //       .connect(jwk);
 //   }
 
-//   // connectedWallet1FactMarket = warp
-//   //   .contract(contractFactMarket.contractTxId)
-//   //   .setEvaluationOptions({
-//   //     internalWrites: true,
-//   //     mineArLocalBlocks: true,
-//   //     unsafeClient: 'skip',
-//   //   })
-//   //   .connect(wallet1.jwk);
+//   connectedWallet1FactMarket = warp
+//     .contract(contractFactMarket.contractTxId)
+//     .setEvaluationOptions({
+//       remoteStateSyncSource: `https://dre-5.warp.cc/contract`,
+//       remoteStateSyncEnabled: true,
+//       internalWrites: true,
+//       allowBigInt: true,
+//       unsafeClient: 'skip',
+//     })
+//     .connect(jwk);
 
 //   // Mint AR to wallets
 //   // await fetch(`http://localhost:1984/mint/${wallet1.address}/100000000000000`);
@@ -172,7 +174,7 @@
 //   const output = await warp
 //     .contract('GBYW1o8Nh4rrbw5WSueEjA44f9Re09Vki06E7X_mzAw')
 //     .setEvaluationOptions({
-//       remoteStateSyncSource: `https://dre-6.warp.cc/contract`,
+//       remoteStateSyncSource: `https://dre-5.warp.cc/contract`,
 //       remoteStateSyncEnabled: true,
 //       internalWrites: true,
 //       allowBigInt: true,
@@ -189,7 +191,7 @@
 //   const output = await warp
 //     .contract('GBYW1o8Nh4rrbw5WSueEjA44f9Re09Vki06E7X_mzAw')
 //     .setEvaluationOptions({
-//       remoteStateSyncSource: `https://dre-6.warp.cc/contract`,
+//       remoteStateSyncSource: `https://dre-5.warp.cc/contract`,
 //       remoteStateSyncEnabled: true,
 //       internalWrites: true,
 //       allowBigInt: true,
@@ -205,7 +207,7 @@
 //   const interaction = await connectedWallet1U.writeInteraction({
 //     function: 'allow',
 //     // VqVFBydoDYKFzQsmejLTPrk67BShXgD25BdDDjIrKwA
-//     target: contractFactsToken.contractTxId,
+//     target: contractFactMarket.contractTxId,
 //     qty: 2,
 //   });
 
@@ -218,23 +220,33 @@
 // });
 
 // test('should buy 1 position token', async () => {
-//   const interaction = await connectedWallet1FactsToken.writeInteraction({
-//     function: 'fact-market-buy',
+//   const interaction = await connectedWallet1FactMarket.writeInteraction({
+//     function: 'buy',
 //     qty: 1,
 //     price: 1,
 //     fee: 1,
 //     tx: allowTxForClaim1,
 //     position: 'support',
-//     // W6uq60Hx9YL0n99zLKB0PCEVCJGkQMgcMayit3-8Ass
-//     factMarket: contractFactMarket.contractTxId,
-//     owner: {
-//       addr: '9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4',
-//       position: 'support',
-//     },
 //   });
 
-//   console.log(interaction);
+//   // const u_state = (await connectedWallet1U.readState()).cachedValue.state;
+//   // assert.is(
+//   //   u_state.claimable.map((c) => c.txID).includes(allowTxForClaim1),
+//   //   false
+//   // );
+//   // const state = (await connectedWallet1FactsToken.readState()).cachedValue
+//   //   .state;
+//   // console.log('STATE', state);
+//   // assert.is(state.balances[wallet1.address], 1);
+// });
 
+// test('should sell 1 position token', async () => {
+//   const interaction = await connectedWallet1FactMarket.writeInteraction({
+//     function: 'sell',
+//     qty: 1,
+//     position: 'support',
+//   });
+//   console.log('Interaction!', interaction);
 //   // const u_state = (await connectedWallet1U.readState()).cachedValue.state;
 //   // assert.is(
 //   //   u_state.claimable.map((c) => c.txID).includes(allowTxForClaim1),
