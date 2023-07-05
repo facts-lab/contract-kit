@@ -1,6 +1,6 @@
 import { balance } from './read/balance.js';
 import { buy } from './write/fact-market/buy.js';
-// import { sell } from './write/fact-market/sell.js';
+import { register } from './write/fact-market/register.js';
 import { transfer } from './write/transfer.js';
 import { claim } from './write/claim.js';
 import { allow } from './write/allow.js';
@@ -20,10 +20,10 @@ export async function handle(state, action) {
   switch (action?.input?.function) {
     case 'fact-market-buy':
       return buy(env)(state, action);
-    // case 'fact-market-sell':
-    //   return sell(env)(state, action);
     case 'balance':
       return balance(state, action);
+    case 'register':
+      return register(env)(state, action);
     case 'reject':
       return rejectClaimable(state, action);
     case 'transfer':

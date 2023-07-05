@@ -1,8 +1,10 @@
-import { of, fromNullable, Left, Right } from '../hyper-either.js';
+import Async from 'hyper-async';
+const { fromPromise, Rejected, Resolved } = Async;
+import { of } from '../hyper-either.js';
+
 import {
   POSITION_TYPES,
   calculatePrice,
-  ce,
   getBalances,
   getCurrentSupply,
   roundUp,
@@ -18,16 +20,21 @@ import {
  * @param {*} { contracts }
  * @return {*}
  */
-export function sell({}) {
-  return (state, action) => {
-    return of({ state, action })
-      .chain(fromNullable)
+export function sell({ contracts, contract }) {
+  return async (state, action) => {
+    return Async.of({ state, action })
       .chain(validate)
-      .map(calcualateSellAmount)
-      .map(({ type }) => subtractBalance({ state, action, type }))
-      .fold(
-        (msg) => {
-          throw new ContractError(msg || 'An error occurred.');
+      .chain(calcualateSellAmount)
+      .chain((amount) =>
+        fromPromise(transferU)({ state, action, amount, contracts })
+      )
+      .chain(() => fromPromise(distribute)({ state, contracts, contract }))
+      .map(() => subtractBalance({ state, action }))
+      .fork(
+        (error) => {
+          throw new ContractError(
+            error?.message || error || 'An error occurred.'
+          );
         },
         () => ({ state })
       );
@@ -43,10 +50,10 @@ export function sell({}) {
  */
 const validate = ({ state, action }) => {
   if (!POSITION_TYPES.includes(action?.input?.position))
-    return Left('position must be support or oppose.');
+    return Rejected('position must be support or oppose.');
   if (!isValidQty(action?.input?.qty))
-    return Left('qty must be an integer greater than zero.');
-  return Right({ state, action });
+    return Rejected('qty must be an integer greater than zero.');
+  return Resolved({ state, action });
 };
 
 /**
@@ -59,24 +66,38 @@ const validate = ({ state, action }) => {
 const calcualateSellAmount = ({ state, action }) => {
   const balances = getBalances({ state, action });
   // Make the "expected" amount an optional param
-  return of(balances)
-    .chain((balances) =>
-      ce(
-        (balances[action?.caller] || 0) < roundDown(action?.input?.qty),
-        'Caller balance too low.'
-      )(balances)
-    )
+  return of({ caller: action.caller, balances, qty: action?.input?.qty })
+    .chain(validateBalance)
     .map(getCurrentSupply)
     .map((supply) => calculateSell(supply, action?.input?.qty))
-    .chain((amount) =>
-      ce(action?.input?.expected !== amount, 'The price has changed.')(amount)
-    )
-    .fold(
-      (msg) => {
-        throw new ContractError(msg || 'An error occurred.');
-      },
-      (amount) => amount
-    );
+    .chain((amount) => validateExpected(amount, action?.input?.expected));
+};
+
+/**
+ * Self explanatory
+ *
+ * @author @jshaw-ar
+ * @param {*} { balances, qty }
+ * @return {*}
+ */
+const validateBalance = ({ caller, balances, qty }) => {
+  const invalid = (balances[caller] || 0) < roundDown(qty);
+  if (invalid) return Rejected('Caller balance too low.');
+  return Resolved(balances);
+};
+
+/**
+ * Self explanatory
+ *
+ * @author @jshaw-ar
+ * @param {*} amount
+ * @param {*} expected
+ * @return {*}
+ */
+const validateExpected = (amount, expected) => {
+  const invalid = expected && expected !== amount;
+  if (invalid) return Rejected('Caller expected a different amount.');
+  return Resolved(amount);
 };
 
 /**
@@ -86,8 +107,11 @@ const calcualateSellAmount = ({ state, action }) => {
  * @param {*} supply
  * @param {*} qty
  */
-const calculateSell = (supply, qty) =>
-  roundUp(calculatePrice(1, 1, supply, supply - roundDown(qty))) * -1;
+const calculateSell = (supply, qty) => {
+  const safeQty = roundDown(qty);
+  const price = calculatePrice(1, 1, supply, supply - safeQty) * -1;
+  return roundUp(price);
+};
 
 /**
  * Subtracts the support or opposition balance of the caller.
@@ -98,9 +122,54 @@ const calculateSell = (supply, qty) =>
 const subtractBalance = ({ state, action }) => {
   if (action.input.position === 'support') {
     state.balances[action.caller] =
-      state.balances[action.caller] - action.input.qty;
+      state.balances[action.caller] - roundDown(action.input.qty);
   } else {
     state.oppose[action.caller] =
-      state.oppose[action.caller] - action.input.qty;
+      state.oppose[action.caller] - roundDown(action.input.qty);
   }
 };
+
+/**
+ * Transfers U
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+async function transferU({ state, action, amount, contracts }) {
+  const result = await contracts.write(state.pair, {
+    function: 'transfer',
+    target: action.caller,
+    qty: amount,
+  });
+
+  // This only exists if the tx is successful
+  if (result.type !== 'ok') {
+    throw new ContractError('There was an error transferring U.');
+  }
+}
+
+/**
+ * Transfers U
+ *
+ * @author @jshaw-ar
+ * @param {*} { state, action }
+ * @return {*}
+ */
+async function distribute({ state, contracts, contract }) {
+  if (state.creator_cut > 0) {
+    const result = await contracts.write(state.pair, {
+      function: 'transfer',
+      target: contract.owner,
+      qty: state.creator_cut,
+    });
+
+    // This only exists if the tx is successful
+    if (result.type !== 'ok') {
+      throw new ContractError(
+        'There was an error transferring U to the creator.'
+      );
+    }
+    state.creator_cut = 0;
+  }
+}

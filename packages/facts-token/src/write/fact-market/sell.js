@@ -11,6 +11,13 @@ import { isValidQty, roundDown } from '../../util.js';
  * @param {*} action
  * @return {*} {state}
  */
+
+/**
+ * Input:
+ * - position
+ * - qty
+ * - expected (optional)
+ */
 export function sell(state, action) {
   return Async.of({ state, action })
     .chain(validate)
@@ -23,5 +30,9 @@ export function sell(state, action) {
 }
 
 const validate = ({ state, action }) => {
+  if (!POSITION_TYPES.includes(action?.input?.position))
+    return Rejected('position must be support or oppose.');
+  if (!isValidQty(action?.input?.qty))
+    return Rejected('qty must be an integer greater than zero.');
   return Resolved({ state, action });
 };

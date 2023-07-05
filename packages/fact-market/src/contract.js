@@ -4,15 +4,13 @@ import { getSupply } from './read/get-supply.js';
 import { buy } from './write/buy.js';
 import { sell } from './write/sell.js';
 
+// MSwlyebhHfJdXbYHxVNFyXrJ50fSWMj65mZIh-5Y6SY
 export async function handle(state, action) {
   const fn = action?.input?.function;
-  // if (fn === 'buy' && action.input.caller !== '<FACTS_CONTRACT_ID>') {
-  //   throw new ContractError('Only the FACTS contract can call this function.');
-  // }
   // Only allow L2 transactions
-  // if (SmartWeave.transaction.origin !== 'L2') {
-  //   return { state };
-  // }
+  if (SmartWeave.transaction.origin !== 'L2') {
+    return { state };
+  }
 
   const env = {
     contract: SmartWeave.contract,

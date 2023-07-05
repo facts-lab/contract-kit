@@ -1,4 +1,4 @@
-import { WarpFactory } from 'warp-contracts';
+import { WarpFactory, SourceType } from 'warp-contracts';
 import { DeployPlugin, ArweaveSigner } from 'warp-contracts-plugin-deploy';
 
 import fs from 'fs';
@@ -20,12 +20,19 @@ async function deploy(folder) {
   }
   const initialState = {
     ...stateFromFile,
-    ...{
-      owner: process.env.WALLET_ADDRESS,
-    },
+    owner: process.env.WALLET_ADDRESS,
+    ticker: 'FACTMKT',
+    title: 'Deploy contracts from this source.',
+    position: 'support',
+    creator_cut: 0,
+    burn: 0,
+    balances: {},
+    oppose: {},
+    pair: 'KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw', //1232330 dre3
+    register: false,
   };
 
-  const deploy = await warp.deploy({
+  const deploySource = await warp.deploy({
     wallet: new ArweaveSigner(jwk),
     initState: JSON.stringify(initialState),
     src: contractSrc,
@@ -38,6 +45,22 @@ async function deploy(folder) {
       },
     },
   });
-  console.log(`contractTxId ${deploy.contractTxId}`);
+  console.log(`source contractTxId ${deploySource.srcTxId}`);
+
+  const deployMarket = await warp.deployFromSourceTx({
+    wallet: new ArweaveSigner(jwk),
+    srcTxId: deploySource.srcTxId,
+    initState: JSON.stringify({ ...initialState, title: 'First Fact Market' }),
+    evaluationManifest: {
+      evaluationOptions: {
+        sourceType: SourceType.BOTH,
+        internalWrites: true,
+        allowBigInt: true,
+        unsafeClient: 'skip',
+      },
+    },
+  });
+
+  console.log(`Fact Market contractTxId ${deployMarket.contractTxId}`);
 }
 deploy(process.argv[2]).catch(console.log);
