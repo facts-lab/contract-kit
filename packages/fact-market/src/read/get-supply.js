@@ -1,6 +1,6 @@
 import { getCurrentSupply } from '../util.js';
 
-export async function getSupply(state) {
+export function getSupply(state) {
   return {
     result: {
       total: getCurrentSupply(state.balances) + getCurrentSupply(state.oppose),
