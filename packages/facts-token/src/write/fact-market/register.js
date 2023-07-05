@@ -24,9 +24,11 @@ export function register({ contracts }) {
         })
       )
       .fork(
-        (err) => {
+        (error) => {
           console.log('Error registering!');
-          throw new ContractError(err?.message || err || 'An error occurred.');
+          throw new ContractError(
+            error?.message || error || 'An error occurred.'
+          );
         },
         (from) => {
           state.positions.push({ ...action?.input?.position, from });

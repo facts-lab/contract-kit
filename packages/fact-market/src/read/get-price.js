@@ -7,8 +7,10 @@ export function getPrice({ contract }) {
       .chain(validate)
       .map(getPriceAndFee)
       .fold(
-        (err) => {
-          throw new ContractError(err?.message || err || 'An error occurred.');
+        (error) => {
+          throw new ContractError(
+            error?.message || error || 'An error occurred.'
+          );
         },
         ({ price, fee }) => ({
           result: {

@@ -35,9 +35,10 @@ export function buy({ contract, contracts }) {
       .chain(() => fromPromise(register)({ state, action, contracts }))
       .chain(() => fromPromise(claimU)({ state, action, contracts }))
       .fork(
-        (err) => {
-          console.log('Error!', err);
-          throw new ContractError(err?.message || err || 'An error occurred.');
+        (error) => {
+          throw new ContractError(
+            error?.message || error || 'An error occurred.'
+          );
         },
         () => ({ state })
       );

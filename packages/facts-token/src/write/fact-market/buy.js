@@ -33,8 +33,10 @@ export function buy({ contract, contracts }) {
       )
       .map(() => distributeFee({ state, action }))
       .fork(
-        (err) => {
-          throw new ContractError(err?.message || err || 'An error occurred.');
+        (error) => {
+          throw new ContractError(
+            error?.message || error || 'An error occurred.'
+          );
         },
         () => {
           return { state };
