@@ -25,7 +25,6 @@ export function register({ contracts }) {
       )
       .fork(
         (error) => {
-          console.log('Error registering!');
           throw new ContractError(
             error?.message || error || 'An error occurred.'
           );
@@ -75,7 +74,6 @@ function validateTransfer({ state, action, claimable }) {
   if (qty !== claim?.qty) return Rejected({ state, action });
   if (tx !== claim.txID) return Rejected({ state, action });
   if (action.caller !== claim.to) return Rejected({ state, action });
-  console.log('Resolving!');
   return Resolved(claim.from);
 }
 
