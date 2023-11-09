@@ -4,11 +4,10 @@ import { getSupply } from './read/get-supply.js';
 import { buy } from './write/buy.js';
 import { sell } from './write/sell.js';
 
-// MSwlyebhHfJdXbYHxVNFyXrJ50fSWMj65mZIh-5Y6SY
 export async function handle(state, action) {
   const fn = action?.input?.function;
-  // Only allow L2 transactions
-  if (SmartWeave.transaction.origin !== 'L2') {
+  // Only allow L2 transactions on write
+  if (['buy', 'sell'].includes(fn) && SmartWeave.transaction.origin !== 'L2') {
     return { state };
   }
 
