@@ -5,7 +5,7 @@
   "type": "module",
   "main": "contract.js",
   "scripts": {
-    "test": "npm run build && uvu test",
+    "test": "uvu test",
     "build": "rm -r dist; node ./scripts/build.js && cp initial-state.json dist/initial-state.json && cp -R dist ../facts-token/contract-integrations/fact-market/",
     "deploy": "npm run build && NODE_NO_WARNINGS=1 node ./scripts/deploy-contract-prod.mjs ./dist"
   },
